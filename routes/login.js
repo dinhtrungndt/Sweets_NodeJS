@@ -10,7 +10,8 @@ router.get("/get-login", async function (req, res) {
   var Data = await modelLogin.find();
   res.json({ Data });
 });
-
+// Đăng nhập
+// http://localhost:3000/login/post-login
 router.post('/post-login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -30,7 +31,8 @@ router.post('/post-login', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi rồi' });
   }
 });
-
+// Đăng kí
+// http://localhost:3000/login/post-register
 router.post('/post-register', async (req, res) => {
   try {
     const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
