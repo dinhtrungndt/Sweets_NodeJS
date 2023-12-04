@@ -6,10 +6,13 @@ var logger = require("morgan");
 
 const mongoose = require("mongoose");
 require("./models/login");
+require("./models/post");
+require("./models/user");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
 var loginRouter = require("./routes/login");
+var postRouter = require("./routes/post");
+var userRouter = require("./routes/user");
 
 var app = express();
 
@@ -31,8 +34,9 @@ mongoose
   .then(() => console.log(">>>>>>>>>> DB Connected!!!!!!"));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 app.use("/login", loginRouter);
+app.use("/post", postRouter);
+app.use("/user", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
