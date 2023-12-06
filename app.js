@@ -5,14 +5,14 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 const mongoose = require("mongoose");
-require("./models/login");
 require("./models/post");
 require("./models/user");
+require("./models/settinguser");
 
 var indexRouter = require("./routes/index");
-var loginRouter = require("./routes/login");
 var postRouter = require("./routes/post");
 var userRouter = require("./routes/user");
+var settinguserRouter = require("./routes/settinguser");
 
 var app = express();
 
@@ -34,9 +34,9 @@ mongoose
   .then(() => console.log(">>>>>>>>>> DB Connected!!!!!!"));
 
 app.use("/", indexRouter);
-app.use("/login", loginRouter);
 app.use("/post", postRouter);
 app.use("/user", userRouter);
+app.use("/settinguser", settinguserRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

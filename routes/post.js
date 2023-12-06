@@ -14,7 +14,7 @@ router.post('/:userId/create-post', async (req, res) => {
     if (!user) {
       return res.status(404).json({ status: 0, message: 'Người dùng không tồn tại' });
     }
-
+    
     const newPost = {
       title,
       image,
