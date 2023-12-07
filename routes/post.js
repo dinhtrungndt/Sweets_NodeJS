@@ -32,5 +32,17 @@ router.post('/:userId/create-post', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Lỗi khi tạo bài viết' });
   }
 });
+// lấy tất cả danh sách bài viết của người dùng
+http://localhost:3001/post/get-all-post
+router.get('/get-all-post', async (req, res) => {
+  try {
+    const posts = await User.find({}, 'posts').populate('posts');
+    res.json({ status: 1, message: 'Lấy danh sách bài viết thành công', posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 0, message: 'Lỗi khi lấy danh sách bài viết' });
+  }
+});
 
 module.exports = router;
+

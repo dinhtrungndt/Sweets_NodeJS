@@ -16,6 +16,17 @@ const postSchema = new Schema(
   }
 );
 
+const storySchema = new Schema(
+  {
+    id: { type: ObjectId }, // Khóa chính
+    title: { type: String },
+    file: { type: String },
+  },
+  {
+    versionKey: false,
+  }
+);
+
 const userSchema = new Schema(
   {
     id: { type: ObjectId },
@@ -27,6 +38,8 @@ const userSchema = new Schema(
     avatar: { type: String },
     anhbia: { type: String },
     posts: [postSchema],
+    stories: [storySchema], // Mảng story
+    friends: [{ type: ObjectId, ref: 'user' }], // Mảng friends với kiểu ObjectId và tham chiếu đến model 'user'
   },
   {
     versionKey: false,
