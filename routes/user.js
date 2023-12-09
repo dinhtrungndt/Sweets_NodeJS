@@ -89,6 +89,8 @@ router.post('/reset-password/:token', (req, res) => {
     res.status(200).json({ status: 1, message: 'Token verified successfully', decoded });
   });
 });
+
+// Đổi mật khẩu
 // http://localhost:3001/user/change-password
 router.post('/change-password', async (req, res) => {
   const { token, newPassword } = req.body;
@@ -149,13 +151,13 @@ router.post('/post-login', async (req, res) => {
   }
 });
 
+
 // Đăng ký
 // http://localhost:3001/user/post-register
 router.post('/post-register', async (req, res) => {
   try {
     const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
     const user = await User.findOne({ email: email });
-
     if (user) {
       res.json({ status: 0, message: 'Tài khoản đã tồn tại' });
     } else {
@@ -229,7 +231,8 @@ router.post('/update-avatar', upload.fields([
       res.json({ status: 0, message: 'Lỗi khi cập nhật' });
     }
   });
-  // http://localhost:3001/user/update-anhbia
+// cập nhật ảnh bìa
+// http://localhost:3001/user/update-anhbia
 router.post('/update-anhbia', upload.fields([
   { name: 'anhbia', maxCount: 1 }]), async (req, res) => {
     const { _id } = req.body;
@@ -247,6 +250,8 @@ router.post('/update-anhbia', upload.fields([
       res.json({ status: 0, message: 'Lỗi khi cập nhật' });
     }
   });
+
+// cập nhật profile
 // http://localhost:3001/user/update-profile
 router.post('/update-profile', async (req, res) => {
   const { _id, name, gioitinh, ngaysinh } = req.body;

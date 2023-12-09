@@ -5,12 +5,10 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 const mongoose = require("mongoose");
-require("./models/post");
 require("./models/user");
 require("./models/settinguser");
 
 var indexRouter = require("./routes/index");
-var postRouter = require("./routes/post");
 var userRouter = require("./routes/user");
 var settinguserRouter = require("./routes/settinguser");
 var storyRouter = require("./routes/story");
@@ -36,7 +34,6 @@ mongoose
   .then(() => console.log(">>>>>>>>>> DB Connected!!!!!!"));
 
 app.use("/", indexRouter);
-app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/settinguser", settinguserRouter);
 app.use("/story", storyRouter);
