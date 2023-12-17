@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+</head>
+
+<body>
+    <input type="text" id="messageInput" placeholder="Type your message">
+    <button onclick="sendMessage()">Send2</button>
+    <div id="chatOutput"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:3002');
+
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to server');
+        });
+
+        socket.addEventListener('message', function (event) {
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                const chatOutput = document.getElementById('chatOutput');
+                chatOutput.innerHTML += '<p>' + reader.result + '</p>';
+            };
+
+            reader.readAsText(event.data);
+        });
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+
+            // Display the message immediately on the sender's side
+            const chatOutput = document.getElementById('chatOutput');
+            chatOutput.innerHTML += '<p style="color: blue;">' + message + '</p>';
+            chatOutput.scrollTop = chatOutput.scrollHeight; // Auto-scroll to the bottom
+            // Send the message to the server
+            socket.send(message);
+            // Clear the input field
+            messageInput.value = '';
+        }
+    </script>
+</body>
+
+</html>
