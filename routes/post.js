@@ -33,10 +33,16 @@ router.post('/:userId/create-post', async (req, res) => {
   }
 });
 // lấy tất cả danh sách bài viết của người dùng
-http://localhost:3001/post/get-all-post
+// http://localhost:3001/post/get-all-post
 router.get('/get-all-post', async (req, res) => {
   try {
-    const posts = await User.find({}, 'posts').populate('posts');
+    const posts = await User.find({}).populate('posts');
+
+    // Check if there are no users or if users have no posts
+    if (!posts || posts.length === 0) {
+      return res.json({ status: 1, message: 'Không có bài viết nào được tìm thấy', posts: [] });
+    }
+
     res.json({ status: 1, message: 'Lấy danh sách bài viết thành công', posts });
   } catch (err) {
     console.error(err);
