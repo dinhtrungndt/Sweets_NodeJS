@@ -5,11 +5,14 @@ const ObjectId = Schema.ObjectId;
 const postSchema = new Schema(
   {
     id: { type: ObjectId },
-    title: { type: String },
-    image: { type: String },
     avatar: { type: String },
+    name: { type: String },
     time: { type: String },
-    actionType: { type: String },
+    content: { type: String },
+    image: [{ type: String }],
+    likedBy: [{ type: ObjectId, ref: 'user' }], 
+    comments: [{ type: ObjectId, ref: 'comment' }], 
+ 
   },
   {
     versionKey: false,
