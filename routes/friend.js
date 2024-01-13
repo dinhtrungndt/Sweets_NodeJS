@@ -45,7 +45,6 @@ router.get("/:userID", async function (req, res) {
   }
 })
 
-
 // Xóa mối quan hệ bạn bè
 // http://localhost:3001/friend/delete-friend/:id
 router.delete("/delete-friend/:id", async function (req, res) {
@@ -56,6 +55,6 @@ router.delete("/delete-friend/:id", async function (req, res) {
     next(err);
     res.json({ status: 500, message: "Xóa thất bại" });
   }
-})
+});
 
 module.exports = router;

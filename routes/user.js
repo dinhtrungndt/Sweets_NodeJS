@@ -270,4 +270,16 @@ router.post('/update-profile', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi cập nhật' });
   }
 });
+
+// Xóa người dùng
+// http://localhost:3001/user/delete-user/:id
+router.delete('/delete-user/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    res.json({ status: 1, message: 'Xóa thành công' });
+  } catch (err) {
+    res.json({ status: 0, message: 'Xóa thất bại' });
+  }
+});
+
 module.exports = router;

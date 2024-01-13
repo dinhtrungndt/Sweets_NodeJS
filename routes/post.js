@@ -9,7 +9,7 @@ const cloudinary = require("cloudinary");
 router.post('/:userId/create-post', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { avatar, name, time, content, image, like, comment } = req.body;
+    const { avatar, name, time, content, image, likedBy, comments } = req.body;
 
     const user = await User.findById(userId);
 
@@ -25,7 +25,7 @@ router.post('/:userId/create-post', async (req, res) => {
       content,
       image,
       likedBy: [], 
-      comments: [],
+      comments: comments || [],
     };
 
     user.posts.push(newPost);
@@ -120,6 +120,33 @@ router.delete('/:userId/delete-post/:postId', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: 0, message: 'Lỗi khi xóa bài viết' });
+  }
+});
+
+// Lấy danh sách comment
+// http://localhost:3001/post/:userId/get-all-comment
+router.get('/:userId/get-all-comment', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Kiểm tra xem người dùng có tồn tại không
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'Người dùng không tồn tại' });
+    }
+
+    // Lấy tất cả bài viết
+    const posts = await User.find({}).populate('posts');
+
+    // Check if there are no users or if users have no posts
+    if (!posts || posts.length === 0) {
+      return res.json({ status: 1, message: 'Không có bài viết nào được tìm thấy', posts: [] });
+    }
+
+    res.json({ status: 1, message: 'Lấy danh sách bài viết thành công', posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 0, message: 'Lỗi khi lấy danh sách bài viết' });
   }
 });
 
