@@ -13,6 +13,8 @@ var userRouter = require("./routes/user");
 var settinguserRouter = require("./routes/settinguser");
 var storyRouter = require("./routes/story");
 var friendRouter = require("./routes/friend");
+var postRouter = require("./routes/post");
+var relationSRouter = require("./routes/relationship");
 
 var app = express();
 
@@ -38,6 +40,8 @@ app.use("/user", userRouter);
 app.use("/settinguser", settinguserRouter);
 app.use("/story", storyRouter);
 app.use("/friend", friendRouter);
+app.use("/post", postRouter);
+app.use("/relationS", relationSRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

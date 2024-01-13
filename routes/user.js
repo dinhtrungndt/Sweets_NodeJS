@@ -139,7 +139,7 @@ router.post('/post-login', async (req, res) => {
 
       if (match) {
         const token = jwt.sign({ email: email }, 'shhhhh', { expiresIn: '2h' });
-        res.json({ status: 1, message: 'Đăng nhập thành công', token: token });
+        res.json({ status: 1, message: 'Đăng nhập thành công', token: token,  id: user._id, post: user.posts, user });
       } else {
         res.json({ status: 0, message: 'Mật khẩu không đúng' });
       }
@@ -161,15 +161,15 @@ router.post('/post-register', async (req, res) => {
     if (user) {
       res.json({ status: 0, message: 'Tài khoản đã tồn tại' });
     } else {
-      const hash = await bcrypt.hash(password || 'default', saltRounds);
+      const hash = await bcrypt.hash(password, saltRounds);
       const newUser = {
-        name: name || 'default',
-        email: email || 'default',
+        name: name,
+        email: email,
         password: hash,
-        gioitinh: gioitinh || 'default',
-        ngaysinh: ngaysinh || 'default',
-        avatar: avatar || 'default',
-        anhbia: anhbia || 'default'
+        gioitinh: gioitinh,
+        ngaysinh: ngaysinh,
+        avatar: avatar,
+        anhbia: anhbia
       };
 
       res.json({ status: 1, message: 'Đăng ký thành công' });
@@ -195,7 +195,7 @@ router.post('/post-update-password', async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (passwordMatch) {
         // mã hóa mật khẩu mới trước khi cập nhật
-        const hashedPassword = await bcrypt.hash(newPassword || 'default', saltRounds);
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
         // cập nhật mật khẩu mới trong database
         user.password = hashedPassword;
         await user.save();
