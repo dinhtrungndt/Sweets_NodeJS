@@ -11,7 +11,7 @@ const postSchema = new Schema(
     content: { type: String },
     image: [{ type: String }],
     likedBy: [{ type: ObjectId, ref: 'user' }], 
-    comments: [{ type: ObjectId, ref: 'comment' }], 
+    comments: [{ type: ObjectId}], 
  
   },
   {

@@ -9,7 +9,7 @@ const cloudinary = require("cloudinary");
 router.post('/:userId/create-post', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { avatar, name, time, content, image, like, comment } = req.body;
+    const { avatar, name, time, content, image, likedBy, comments } = req.body;
 
     const user = await User.findById(userId);
 
