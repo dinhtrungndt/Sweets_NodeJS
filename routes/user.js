@@ -132,13 +132,15 @@ router.post('/change-password', async (req, res) => {
 router.post('/post-login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: email });
+    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
+
+    const user = await User.findOne({ email: lowerCaseEmail });
 
     if (user) {
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        const token = jwt.sign({ email: email }, 'shhhhh', { expiresIn: '2h' });
+        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '2h' });
         res.json({ status: 1, message: 'Đăng nhập thành công', token: token,  id: user._id, post: user.posts, user });
       } else {
         res.json({ status: 0, message: 'Mật khẩu không đúng' });
