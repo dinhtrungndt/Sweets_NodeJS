@@ -7,17 +7,23 @@ const friendRequestSchema = new Schema({
   status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
 });
 
-const postSchema = new Schema({
-  id: { type: ObjectId },
-  title: { type: String },
-  image: { type: String },
-  avatar: { type: String },
-  time: { type: String },
-  actionType: { type: String },
-},
-{
-  versionKey: false,
-});
+const postSchema = new Schema(
+  {
+    id: { type: ObjectId },
+    avatar: { type: String },
+    name: { type: String },
+    time: { type: String },
+    content: { type: String },
+    image: [{ type: String }],
+    likedBy: [{ type: ObjectId, ref: 'user' }], 
+    comments: [{ type: ObjectId}], 
+ 
+  },
+  {
+    versionKey: false,
+  }
+);
+
 
 const storySchema = new Schema({
   id: { type: ObjectId },
