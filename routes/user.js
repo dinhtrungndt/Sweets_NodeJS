@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const saltRounds = 10;
 
+
 var multer = require('multer');
 // // thêm ảnh
 const cloudinary = require('../configs/cloundinary');
@@ -132,14 +133,16 @@ router.post('/change-password', async (req, res) => {
 router.post('/post-login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: email });
+    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
+
+    const user = await User.findOne({ email: lowerCaseEmail });
 
     if (user) {
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        const token = jwt.sign({ email: email }, 'shhhhh', { expiresIn: '2h' });
-        res.json({ status: 1, message: 'Đăng nhập thành công', token: token,  id: user._id, post: user.posts, user });
+        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '2h' });
+        res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
       } else {
         res.json({ status: 0, message: 'Mật khẩu không đúng' });
       }
@@ -270,4 +273,48 @@ router.post('/update-profile', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi cập nhật' });
   }
 });
+// tìm kiếm user
+// http://localhost:3001/user/search-user
+router.post('/search-user', async (req, res) => {
+  const { name } = req.body;
+  try {
+    const users = await User.find(
+      { name: { $regex: new RegExp(name, 'i') } },
+      { name: 1, avatar: 1, ngaysinh: 1 }
+    );
+
+    if (users.length > 0) {
+      res.json({ status: 1, message: 'Tìm kiếm thành công', users });
+    } else {
+      res.json({ status: 0, message: 'Không tìm thấy' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
+  }
+});
+// search all post
+// http://localhost:3001/user/search-post
+
+router.post('/search-all-post', async (req, res) => {
+  const { name } = req.body;
+  try {
+    const users = await User.find(
+      { name: { $regex: new RegExp(name, 'i') } },
+      { posts: 1 }
+    );
+
+    if (users.length > 0) {
+      res.json({ status: 1, message: 'Tìm kiếm thành công', users });
+    } else {
+      res.json({ status: 0, message: 'Không tìm thấy' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
+  }
+});
+
+
+
+
+
 module.exports = router;

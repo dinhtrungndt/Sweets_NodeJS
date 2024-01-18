@@ -24,7 +24,7 @@ router.post('/:userId/create-post', async (req, res) => {
       time,
       content,
       image,
-      likedBy: [], 
+      likedBy: [],
       comments: [],
     };
 
