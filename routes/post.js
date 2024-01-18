@@ -123,6 +123,36 @@ router.delete('/:userId/delete-post/:postId', async (req, res) => {
   }
 });
 
+// Lấy danh người dùng đã like bài viết
+// http://localhost:3001/post/:postId/get-liked-by
+router.get('/:postId/get-liked-by', async (req, res) => {
+  try {
+    const postId = req.params.postId;
+
+    // Lấy tất cả bài viết
+    const users = await User.find({});
+    const user = users.find((user) => user.posts.find((post) => post._id == postId));
+    
+    // Kiểm tra xem bài viết có tồn tại không
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'Bài viết không tồn tại' });
+    }
+
+    // Lấy danh sách người dùng đã like bài viết
+    const post = user.posts.find((post) => post._id == postId);
+    const likedBy = post.likedBy;
+
+    // hiển thị thông tin cơ bản của người dùng
+    const likedByUsers = await User.find({ _id: { $in: likedBy } }).select('name avatar');
+
+    res.json({ status: 1, message: 'Lấy danh sách người dùng đã like bài viết thành công', likedByUsers });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 0, message: 'Lỗi khi lấy danh sách người dùng đã like bài viết' });
+  }
+});
+
 // Lấy danh sách comment
 // http://localhost:3001/post/:userId/get-all-comment
 router.get('/:userId/get-all-comment', async (req, res) => {
