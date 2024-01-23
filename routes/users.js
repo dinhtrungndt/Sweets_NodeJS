@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user'); // Đổi tên model từ "login" thành "user"
+const User = require('../models/users');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
@@ -128,21 +128,53 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-// Đăng nhập
-// http://localhost:3001/user/post-login
+// kiểm tra token
+// http://localhost:5000/user/check-token
+router.post('/check-token', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const decoded = jwt.verify(token, 'shhhhh');
+    // Lấy thời gian hiện tại
+    const now = Date.now() / 1000;
+    // Kiểm tra thời gian tồn tại của token
+    const remainingTime = decoded.exp - now;
+    // Ghi log thời gian còn lại vào console
+    console.log('Thời gian còn lại của token:', remainingTime, 'giây');
+    res.status(200).json({ success: true, message: 'Token còn hiệu lực', remainingTime });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ' });
+  }
+});
+
+// đăng nhập
 router.post('/post-login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
-
     const user = await User.findOne({ email: lowerCaseEmail });
-
     if (user) {
       const match = await bcrypt.compare(password, user.password);
-
       if (match) {
-        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '2h' });
-        res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
+        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '720h' });
+        // kiểm tra thời gian tồn tại của token
+        // giải mã thời gian sau khi lấy được mã token
+        const decoded = jwt.verify(token, 'shhhhh');
+        // lấy thời gian hiện tại
+        const now = Date.now().valueOf() / 1000;
+        // kiểm tra thời gian tồn tại của token
+        const remainingTime = decoded.exp - now;
+        // Log thời gian còn lại trong console
+
+        if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
+          res.json({ status: 0, message: 'Hết hạn đăng nhập' });
+        } else {
+          res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
+        }
+
+
       } else {
         res.json({ status: 0, message: 'Mật khẩu không đúng' });
       }
@@ -153,7 +185,6 @@ router.post('/post-login', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi đăng nhập' });
   }
 });
-
 
 // Đăng ký
 // http://localhost:3001/user/post-register
@@ -312,9 +343,6 @@ router.post('/search-all-post', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
   }
 });
-
-
-
 
 
 module.exports = router;
