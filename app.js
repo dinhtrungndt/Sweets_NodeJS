@@ -5,16 +5,26 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 const mongoose = require("mongoose");
-require("./models/user");
-require("./models/settinguser");
+require("./models/users");
+require("./models/message");
+require("./models/friend");
+require("./models/reaction");
+require("./models/comments");
+require("./models/object");
+require("./models/typeposts");
+require("./models/media");
+require("./models/posts");
 
 var indexRouter = require("./routes/index");
-var userRouter = require("./routes/user");
-var settinguserRouter = require("./routes/settinguser");
-var storyRouter = require("./routes/story");
+var userRouter = require("./routes/users");
+var messageRouter = require("./routes/message");
 var friendRouter = require("./routes/friend");
-var postRouter = require("./routes/post");
-var relationSRouter = require("./routes/relationship");
+var reactionRouter = require("./routes/reaction");
+var commentsRouter = require("./routes/comments");
+var objectRouter = require("./routes/object");
+var typepostsRouter = require("./routes/typeposts");
+var mediaRouter = require("./routes/media");
+var postsRouter = require("./routes/posts");
 
 var app = express();
 
@@ -36,12 +46,15 @@ mongoose
   .then(() => console.log(">>>>>>>>>> DB Connected!!!!!!"));
 
 app.use("/", indexRouter);
-app.use("/user", userRouter);
-app.use("/settinguser", settinguserRouter);
-app.use("/story", storyRouter);
+app.use("/users", userRouter);
+app.use("/message", messageRouter);
 app.use("/friend", friendRouter);
-app.use("/post", postRouter);
-app.use("/relationS", relationSRouter);
+app.use("/reaction", reactionRouter);
+app.use("/comments", commentsRouter);
+app.use("/object", objectRouter);
+app.use("/typeposts", typepostsRouter);
+app.use("/media", mediaRouter);
+app.use("/posts", postsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
