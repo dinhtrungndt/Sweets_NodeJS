@@ -90,18 +90,78 @@ router.post('/reset-password/:token', (req, res) => {
     res.status(200).json({ status: 1, message: 'Token verified successfully', decoded });
   });
 });
+// cập nhật token vào user
+// http://localhost:5000/user/update-token
+router.post('/update-token', async (req, res) => {
+  const { _id, token } = req.body;
+  try {
+    const user = await User.findOne({ _id: _id });
+    if (user) {
+      user.token = token;
+      await user.save();
+      res.json({ status: 1, message: 'Cập nhật thành công' });
+    } else {
+      res.json({ status: 0, message: 'Người dùng không tồn tại' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+  }
+});
 
-// Đổi mật khẩu
-// http://localhost:3001/user/change-password
+// kiểm tra token
+// http://localhost:5000/user/check-token
+router.post('/check-token', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const decoded = jwt.verify(token, 'shhhhh');
+    // Lấy thời gian hiện tại
+    const now = Date.now() / 1000;
+    // Kiểm tra thời gian tồn tại của token
+    const remainingTime = decoded.exp - now;
+    // Ghi log thời gian còn lại vào console
+    if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
+      res.json({ status: 0, message: 'Hết hạn đăng nhập' });
+    } else {
+      res.status(200).json({ success: true, message: 'Token còn hiệu lực', remainingTime });
+    }
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ' });
+  }
+});
+
+// Đăng nhập
+// http://localhost:3001/user/post-login
+router.post('/post-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
+    const user = await User.findOne({ email: lowerCaseEmail });
+    if (user) {
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '720h' });
+        res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
+      } else {
+        res.json({ status: 0, message: 'Mật khẩu không đúng' });
+      }
+    } else {
+      res.json({ status: 0, message: 'Tài khoản không tồn tại' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi đăng nhập' });
+  }
+});
+
 router.post('/change-password', async (req, res) => {
   const { token, newPassword } = req.body;
   if (!token) {
     return res.status(0).json({ success: false, message: 'Không lấy được token' });
   }
-
   try {
     const decoded = jwt.verify(token, secretKey);
-
     if (!decoded || !decoded.email) {
       return res.status(0).json({ success: false, message: 'Token bị lỗi' });
     }
@@ -110,10 +170,8 @@ router.post('/change-password', async (req, res) => {
     if (!user) {
       return res.status(0).json({ success: false, message: 'Không có thông tin người dùng' });
     }
-
     // Mã hóa mật khẩu mới trước khi cập nhật
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
     // Cập nhật mật khẩu mới trong cơ sở dữ liệu
     user.password = hashedPassword;
     await user.save();
@@ -127,33 +185,6 @@ router.post('/change-password', async (req, res) => {
     res.status(0).json({ success: false, message: 'Internal server error' });
   }
 });
-
-// Đăng nhập
-// http://localhost:3001/user/post-login
-router.post('/post-login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
-
-    const user = await User.findOne({ email: lowerCaseEmail });
-
-    if (user) {
-      const match = await bcrypt.compare(password, user.password);
-
-      if (match) {
-        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '2h' });
-        res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
-      } else {
-        res.json({ status: 0, message: 'Mật khẩu không đúng' });
-      }
-    } else {
-      res.json({ status: 0, message: 'Tài khoản không tồn tại' });
-    }
-  } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi đăng nhập' });
-  }
-});
-
 
 // Đăng ký
 // http://localhost:3001/user/post-register
@@ -172,7 +203,8 @@ router.post('/post-register', async (req, res) => {
         gioitinh: gioitinh,
         ngaysinh: ngaysinh,
         avatar: avatar,
-        anhbia: anhbia
+        anhbia: anhbia,
+        token: 'null',
       };
 
       res.json({ status: 1, message: 'Đăng ký thành công' });
@@ -256,6 +288,7 @@ router.post('/update-anhbia', upload.fields([
 
 // cập nhật profile
 // http://localhost:3001/user/update-profile
+
 router.post('/update-profile', async (req, res) => {
   const { _id, name, gioitinh, ngaysinh } = req.body;
   try {

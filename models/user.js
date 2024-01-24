@@ -37,6 +37,7 @@ const userSchema = new Schema({
   ngaysinh: { type: String },
   avatar: { type: String },
   anhbia: { type: String },
+  token: { type: String },
   posts: [postSchema],
   stories: [storySchema],
   friends: [{ type: ObjectId, ref: 'user' }],
