@@ -194,7 +194,9 @@ router.post('/change-password', async (req, res) => {
 router.post('/post-register', async (req, res) => {
   try {
     const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
-    const user = await User.findOne({ email: email });
+    // chuyển email về chữ thường
+    const lowerCaseEmail = email.toLowerCase();
+    const user = await User.findOne({ email: lowerCaseEmail });
     if (user) {
       res.json({ status: 0, message: 'Tài khoản đã tồn tại' });
     } else {
