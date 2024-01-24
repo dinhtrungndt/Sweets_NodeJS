@@ -90,21 +90,21 @@ router.post('/reset-password/:token', (req, res) => {
 });
 // cập nhật token vào user
 // http://localhost:5000/user/update-token
-router.post('/update-token', async (req, res) => {
-  const { _id, token } = req.body;
-  try {
-    const user = await User.findOne({ _id: _id });
-    if (user) {
-      user.token = token;
-      await user.save();
-      res.json({ status: 1, message: 'Cập nhật thành công' });
-    } else {
-      res.json({ status: 0, message: 'Người dùng không tồn tại' });
-    }
-  } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi cập nhật' });
-  }
-});
+// router.post('/update-token', async (req, res) => {
+//   const { _id, token } = req.body;
+//   try {
+//     const user = await User.findOne({ _id: _id });
+//     if (user) {
+//       user.token = token;
+//       await user.save();
+//       res.json({ status: 1, message: 'Cập nhật thành công' });
+//     } else {
+//       res.json({ status: 0, message: 'Người dùng không tồn tại' });
+//     }
+//   } catch (err) {
+//     res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+//   }
+// });
 
 // kiểm tra token
 // http://localhost:3001/users/check-token
@@ -142,6 +142,10 @@ router.post('/post-login', async (req, res) => {
       const match = await bcrypt.compare(password, user.password);
       if (match) {
         const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '720h' });
+        // lưu token vào user
+        user.token = token;
+        await user.save();
+
         res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
       } else {
         res.json({ status: 0, message: 'Mật khẩu không đúng' });
