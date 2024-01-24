@@ -77,13 +77,11 @@ router.post('/forgot-password', (req, res) => {
 // Endpoint để xác minh mã JWT khi người dùng nhấn vào liên kết trong email3001
 router.post('/reset-password/:token', (req, res) => {
   const { token } = req.params;
-
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       console.error(err);
       return res.status(401).json({ status: 0, message: 'Invalid or expired token' });
     }
-
     // Token hợp lệ, có thể thực hiện các bước khôi phục mật khẩu tại đây
     // Ví dụ: trả về trang đổi mật khẩu
 
@@ -109,7 +107,7 @@ router.post('/update-token', async (req, res) => {
 });
 
 // kiểm tra token
-// http://localhost:5000/user/check-token
+// http://localhost:3001/users/check-token
 router.post('/check-token', async (req, res) => {
   const { token } = req.body;
   try {
@@ -133,7 +131,8 @@ router.post('/check-token', async (req, res) => {
 });
 
 // Đăng nhập
-// http://localhost:3001/user/post-login
+// http://localhost:3001/users/post-login
+// khi đăng nhập sẽ chạy luôn cập nhật token vào user, lưu token vào localstorage
 router.post('/post-login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -246,7 +245,6 @@ router.post('/post-update-password', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
   }
 });
-
 // Cập nhật thông tin người dùng
 // http://localhost:3001/user/update-avatar
 router.post('/update-avatar', upload.fields([
