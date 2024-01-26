@@ -24,16 +24,16 @@ router.post('/add-posts/:idUsers', async (req, res) => {
 
 // Lấy số lượng share theo idPosts
 // http://localhost:3001/posts/get-share/:idPosts
-router.get('/get-share/:idPosts', async (req, res) => {
+router.get("/get-share/:idPosts", async (req, res) => {
   try {
-     const { idPosts } = req.params;
-  const data = await postsModels.find({ idShare: idPosts });
-  res.json(data);
-  }
-  catch (error) {
+    const { idPosts } = req.params;
+    const data = (await postsModels.find({ idShare: idPosts })) || [];
+    res.json({ data });
+  } catch (error) {
     res.json(error);
   }
 });
+
 
 module.exports = router;
 
