@@ -27,11 +27,40 @@ router.post('/add-posts/:idUsers', async (req, res) => {
 router.get("/get-share/:idPosts", async (req, res) => {
   try {
     const { idPosts } = req.params;
-    const data = (await postsModels.find({ idShare: idPosts })) || [];
-    res.json({ data });
+    const data = await postsModels.find({ idShare: idPosts });
+    res.json( data );
   } catch (error) {
     res.json(error);
   }
+});
+
+// Cập nhật bài viết theo idPosts
+// http://localhost:3001/posts/update-posts/:idPosts
+router.put('/update-posts/:idPosts', async (req, res) => {
+  const { idPosts } = req.params;
+  const { content, idObject, idTypePosts, idShare } = req.body;
+  const posts = await postsModels.findById(idPosts);
+  if (posts) {
+    posts.content = content;
+    posts.idObject = idObject;
+    posts.idTypePosts = idTypePosts;
+    posts.idShare = idShare;
+    await posts.save();
+    res.json({
+      status: 'success',
+      message: 'Cập nhật bài viết thành công'
+    })
+  } else {
+    res.status(404).json({ message: 'Bài viết không tồn tại' });
+  }
+})
+
+// Xóa bài viết theo idPosts
+// http://localhost:3001/posts/delete-posts/:idPosts
+router.delete('/delete-posts/:idPosts', async (req, res) => {
+  const { idPosts } = req.params;
+  await postsModels.findByIdAndDelete(idPosts);
+  res.json({ message: 'Xóa bài viết thành công' });
 });
 
 

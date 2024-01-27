@@ -23,25 +23,22 @@ router.post("/add", async (req, res) => {
   try {
     const { idUsers, idPosts, type } = req.body;
 
-    const checkLike = await reactionModel.findOne({ idUsers, idPosts });
+    const checkReaction = await reactionModel.findOne({ idUsers, idPosts });
 
-    if (checkLike) {
-      console.log("Existing reaction:", checkLike);
+    if (checkReaction) {
+      console.log("Existing reaction:", checkReaction);
 
-      if (checkLike.type === "Like") {
+      if (checkReaction.type === type) {
         await reactionModel.findOneAndUpdate(
           { idUsers, idPosts },
-          { type: "Unlike" }
+          { type: "None" } 
         );
 
-        console.log("Updating Like to Unlike");
+        console.log(`Removing ${type} reaction`);
       } else {
-        await reactionModel.findOneAndUpdate(
-          { idUsers, idPosts },
-          { type: "Like" }
-        );
+        await reactionModel.findOneAndUpdate({ idUsers, idPosts }, { type });
 
-        console.log("Updating Unlike to Like");
+        console.log(`Updating reaction to ${type}`);
       }
 
       return res.json({
@@ -68,13 +65,16 @@ router.post("/add", async (req, res) => {
 });
 
 
-
 // Lấy danh sách idPosts theo idUsers
-// http://localhost:3001/reaction/getPostsId
-router.get("/getPostsId", async (req, res) => {
-  const id = req.params.idUsers;
-  const data = await reactionModel.find({ _id: id });
-  res.json(data);
+// http://localhost:3001/reaction/getPostsId/:idPosts
+router.get("/getPostsId/:idPosts", async (req, res) => {
+  try {
+    const { idPosts } = req.params;
+    const data = await reactionModel.find({ idPosts });
+    res.json(data);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 // xóa reaction theo id
@@ -95,4 +95,50 @@ router.delete("/delete/:id", async (req, res) => {
     });
   }
 });
+
+// thêm mới reaction dựa vào idUsers và idPosts
+// http://localhost:3001/reaction/add/:idUsers/:idPosts
+router.post("/add/:idUsers/:idPosts", async (req, res) => {
+  try {
+    const { idUsers, idPosts } = req.params;
+    const { type } = req.body;
+
+    const checkReaction = await reactionModel.findOne({ idUsers, idPosts });
+    if (checkReaction) {
+      console.log("Existing reaction:", checkReaction);
+
+      if (checkReaction.type === type) {
+        await reactionModel.findOneAndUpdate(
+          { idUsers, idPosts },
+          { type: "None" } 
+        );
+
+        console.log(`Removing ${type} reaction`);
+      } else {
+        await reactionModel.findOneAndUpdate({ idUsers, idPosts }, { type });
+
+        console.log(`Updating reaction to ${type}`);
+      }
+
+      return res.json({
+        status: "success",
+        message: "Thêm mới reaction thành công",
+      });
+    }
+    
+    const reaction = new reactionModel({ idUsers, idPosts, type });
+    await reaction.save();
+    res.json({
+      status: "success",
+      message: "Thêm mới reaction thành công",
+    });
+  } catch (error) {
+    res.json({
+      status: "error",
+      message: "Thêm mới reaction thất bại",
+      error: error,
+    });
+  }
+});
+
 module.exports = router;
