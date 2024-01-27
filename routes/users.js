@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/users');
+const User = require('../models/user'); // Đổi tên model từ "login" thành "user"
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
@@ -77,31 +77,94 @@ router.post('/forgot-password', (req, res) => {
 // Endpoint để xác minh mã JWT khi người dùng nhấn vào liên kết trong email3001
 router.post('/reset-password/:token', (req, res) => {
   const { token } = req.params;
-
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       console.error(err);
       return res.status(401).json({ status: 0, message: 'Invalid or expired token' });
     }
-
     // Token hợp lệ, có thể thực hiện các bước khôi phục mật khẩu tại đây
     // Ví dụ: trả về trang đổi mật khẩu
 
     res.status(200).json({ status: 1, message: 'Token verified successfully', decoded });
   });
 });
+// cập nhật token vào user
+// http://localhost:5000/user/update-token
+// router.post('/update-token', async (req, res) => {
+//   const { _id, token } = req.body;
+//   try {
+//     const user = await User.findOne({ _id: _id });
+//     if (user) {
+//       user.token = token;
+//       await user.save();
+//       res.json({ status: 1, message: 'Cập nhật thành công' });
+//     } else {
+//       res.json({ status: 0, message: 'Người dùng không tồn tại' });
+//     }
+//   } catch (err) {
+//     res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+//   }
+// });
 
-// Đổi mật khẩu
-// http://localhost:3001/user/change-password
+// kiểm tra token
+// http://localhost:3001/users/check-token
+router.post('/check-token', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const decoded = jwt.verify(token, 'shhhhh');
+    // Lấy thời gian hiện tại
+    const now = Date.now() / 1000;
+    // Kiểm tra thời gian tồn tại của token
+    const remainingTime = decoded.exp - now;
+    // Ghi log thời gian còn lại vào console
+    if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
+      res.json({ status: 0, message: 'Hết hạn đăng nhập' });
+    } else {
+      res.status(200).json({ success: true, message: 'Token còn hiệu lực', remainingTime });
+    }
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ' });
+  }
+});
+
+// Đăng nhập
+// http://localhost:3001/users/post-login
+// khi đăng nhập sẽ chạy luôn cập nhật token vào user, lưu token vào localstorage
+router.post('/post-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
+    const user = await User.findOne({ email: lowerCaseEmail });
+    if (user) {
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '720h' });
+        // lưu token vào user
+        user.token = token;
+        await user.save();
+
+        res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
+      } else {
+        res.json({ status: 0, message: 'Mật khẩu không đúng' });
+      }
+    } else {
+      res.json({ status: 0, message: 'Tài khoản không tồn tại' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi đăng nhập' });
+  }
+});
+
 router.post('/change-password', async (req, res) => {
   const { token, newPassword } = req.body;
   if (!token) {
     return res.status(0).json({ success: false, message: 'Không lấy được token' });
   }
-
   try {
     const decoded = jwt.verify(token, secretKey);
-
     if (!decoded || !decoded.email) {
       return res.status(0).json({ success: false, message: 'Token bị lỗi' });
     }
@@ -110,10 +173,8 @@ router.post('/change-password', async (req, res) => {
     if (!user) {
       return res.status(0).json({ success: false, message: 'Không có thông tin người dùng' });
     }
-
     // Mã hóa mật khẩu mới trước khi cập nhật
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
     // Cập nhật mật khẩu mới trong cơ sở dữ liệu
     user.password = hashedPassword;
     await user.save();
@@ -128,70 +189,14 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-// kiểm tra token
-// http://localhost:5000/user/check-token
-router.post('/check-token', async (req, res) => {
-  const { token } = req.body;
-  try {
-    const decoded = jwt.verify(token, 'shhhhh');
-    // Lấy thời gian hiện tại
-    const now = Date.now() / 1000;
-    // Kiểm tra thời gian tồn tại của token
-    const remainingTime = decoded.exp - now;
-    // Ghi log thời gian còn lại vào console
-    console.log('Thời gian còn lại của token:', remainingTime, 'giây');
-    res.status(200).json({ success: true, message: 'Token còn hiệu lực', remainingTime });
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc đã hết hạn' });
-    }
-    res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ' });
-  }
-});
-
-// đăng nhập
-router.post('/post-login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const lowerCaseEmail = email.toLowerCase(); // Chuyển đổi email thành chữ thường
-    const user = await User.findOne({ email: lowerCaseEmail });
-    if (user) {
-      const match = await bcrypt.compare(password, user.password);
-      if (match) {
-        const token = jwt.sign({ email: lowerCaseEmail }, 'shhhhh', { expiresIn: '720h' });
-        // kiểm tra thời gian tồn tại của token
-        // giải mã thời gian sau khi lấy được mã token
-        const decoded = jwt.verify(token, 'shhhhh');
-        // lấy thời gian hiện tại
-        const now = Date.now().valueOf() / 1000;
-        // kiểm tra thời gian tồn tại của token
-        const remainingTime = decoded.exp - now;
-        // Log thời gian còn lại trong console
-
-        if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
-          res.json({ status: 0, message: 'Hết hạn đăng nhập' });
-        } else {
-          res.json({ status: 1, message: 'Đăng nhập thành công', token: token, id: user._id, post: user.posts, user });
-        }
-
-
-      } else {
-        res.json({ status: 0, message: 'Mật khẩu không đúng' });
-      }
-    } else {
-      res.json({ status: 0, message: 'Tài khoản không tồn tại' });
-    }
-  } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi đăng nhập' });
-  }
-});
-
 // Đăng ký
 // http://localhost:3001/user/post-register
 router.post('/post-register', async (req, res) => {
   try {
     const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
-    const user = await User.findOne({ email: email });
+    // chuyển email về chữ thường
+    const lowerCaseEmail = email.toLowerCase();
+    const user = await User.findOne({ email: lowerCaseEmail });
     if (user) {
       res.json({ status: 0, message: 'Tài khoản đã tồn tại' });
     } else {
@@ -203,7 +208,8 @@ router.post('/post-register', async (req, res) => {
         gioitinh: gioitinh,
         ngaysinh: ngaysinh,
         avatar: avatar,
-        anhbia: anhbia
+        anhbia: anhbia,
+        token: 'null',
       };
 
       res.json({ status: 1, message: 'Đăng ký thành công' });
@@ -218,11 +224,11 @@ router.post('/post-register', async (req, res) => {
 // http://localhost:3001/user/post-update-password
 router.post('/post-update-password', async (req, res) => {
 
-  const { email, password, newPassword } = req.body;
+  const { _id, password, newPassword } = req.body;
 
   try {
     // tìm người dùng trong database
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ _id: _id });
 
     if (user) {
       // so sánh mật khẩu khi nhập vào và mật khẩu trong database
@@ -245,49 +251,77 @@ router.post('/post-update-password', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
   }
 });
-
 // Cập nhật thông tin người dùng
 // http://localhost:3001/user/update-avatar
-router.post('/update-avatar', upload.fields([
-  { name: 'avatar', maxCount: 1 }]), async (req, res) => {
-    const { _id } = req.body;
-    const { avatar } = req.files;
-    try {
-      const user = await User.findOne({ _id: _id });
-      if (user) {
-        user.avatar = avatar[0].path;
-        await user.save();
-        res.json({ status: 1, message: 'Cập nhật thành công' });
-      } else {
-        res.json({ status: 0, message: 'Người dùng không tồn tại' });
-      }
-    } catch (err) {
-      res.json({ status: 0, message: 'Lỗi khi cập nhật' });
-    }
-  });
+// router.post('/update-avatar', upload.fields([
+//   { name: 'avatar', maxCount: 1 }]), async (req, res) => {
+//     const { _id } = req.body;
+//     const { avatar } = req.files;
+//     try {
+//       const user = await User.findOne({ _id: _id });
+//       if (user) {
+//         user.avatar = avatar[0].path;
+//         await user.save();
+//         res.json({ status: 1, message: 'Cập nhật thành công' });
+//       } else {
+//         res.json({ status: 0, message: 'Người dùng không tồn tại' });
+//       }
+//     } catch (err) {
+//       res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+//     }
+//   });
 // cập nhật ảnh bìa
 // http://localhost:3001/user/update-anhbia
-router.post('/update-anhbia', upload.fields([
-  { name: 'anhbia', maxCount: 1 }]), async (req, res) => {
+router.post('/update-profile', upload.fields([
+  { name: 'anhbia', maxCount: 1 },
+  { name: 'avatar', maxCount: 1 },
+]), async (req, res) => {
+  try {
     const { _id } = req.body;
-    const { anhbia } = req.files;
-    try {
-      const user = await User.findOne({ _id: _id });
-      if (user) {
-        user.anhbia = anhbia[0].path;
-        await user.save();
-        res.json({ status: 1, message: 'Cập nhật thành công' });
-      } else {
-        res.json({ status: 0, message: 'Người dùng không tồn tại' });
-      }
-    } catch (err) {
-      res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+    const { anhbia, avatar } = req.files;
+    const { gioitinh, ngaysinh } = req.body;
+
+    const user = await User.findOne({ _id: _id });
+
+    if (!user) {
+      return res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
-  });
+
+    user.gioitinh = gioitinh;
+    user.ngaysinh = ngaysinh;
+
+    if (anhbia) {
+      user.anhbia = anhbia[0].path;
+    }
+
+    if (avatar) {
+      user.avatar = avatar[0].path;
+    }
+
+    await user.save();
+
+    let successMessage;
+    if (anhbia && avatar) {
+      successMessage = 'Cập nhật thành công 4';
+    } else if (anhbia) {
+      successMessage = 'Cập nhật thành công 3';
+    } else if (avatar) {
+      successMessage = 'Cập nhật thành công 2';
+    } else {
+      successMessage = 'Cập nhật thành công 1';
+    }
+
+    res.json({ status: 1, message: successMessage });
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi cập nhật ' + err.message });
+  }
+});
+
 
 // cập nhật profile
 // http://localhost:3001/user/update-profile
-router.post('/update-profile', async (req, res) => {
+
+router.post('/update-thongtin', async (req, res) => {
   const { _id, name, gioitinh, ngaysinh } = req.body;
   try {
     const user = await User.findOne({ _id: _id });
@@ -343,6 +377,9 @@ router.post('/search-all-post', async (req, res) => {
     res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
   }
 });
+
+
+
 
 
 module.exports = router;
