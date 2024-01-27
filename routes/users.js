@@ -224,11 +224,11 @@ router.post('/post-register', async (req, res) => {
 // http://localhost:3001/user/post-update-password
 router.post('/post-update-password', async (req, res) => {
 
-  const { email, password, newPassword } = req.body;
+  const { _id, password, newPassword } = req.body;
 
   try {
     // tìm người dùng trong database
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ _id: _id });
 
     if (user) {
       // so sánh mật khẩu khi nhập vào và mật khẩu trong database
@@ -253,47 +253,75 @@ router.post('/post-update-password', async (req, res) => {
 });
 // Cập nhật thông tin người dùng
 // http://localhost:3001/user/update-avatar
-router.post('/update-avatar', upload.fields([
-  { name: 'avatar', maxCount: 1 }]), async (req, res) => {
-    const { _id } = req.body;
-    const { avatar } = req.files;
-    try {
-      const user = await User.findOne({ _id: _id });
-      if (user) {
-        user.avatar = avatar[0].path;
-        await user.save();
-        res.json({ status: 1, message: 'Cập nhật thành công' });
-      } else {
-        res.json({ status: 0, message: 'Người dùng không tồn tại' });
-      }
-    } catch (err) {
-      res.json({ status: 0, message: 'Lỗi khi cập nhật' });
-    }
-  });
+// router.post('/update-avatar', upload.fields([
+//   { name: 'avatar', maxCount: 1 }]), async (req, res) => {
+//     const { _id } = req.body;
+//     const { avatar } = req.files;
+//     try {
+//       const user = await User.findOne({ _id: _id });
+//       if (user) {
+//         user.avatar = avatar[0].path;
+//         await user.save();
+//         res.json({ status: 1, message: 'Cập nhật thành công' });
+//       } else {
+//         res.json({ status: 0, message: 'Người dùng không tồn tại' });
+//       }
+//     } catch (err) {
+//       res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+//     }
+//   });
 // cập nhật ảnh bìa
 // http://localhost:3001/user/update-anhbia
-router.post('/update-anhbia', upload.fields([
-  { name: 'anhbia', maxCount: 1 }]), async (req, res) => {
+router.post('/update-profile', upload.fields([
+  { name: 'anhbia', maxCount: 1 },
+  { name: 'avatar', maxCount: 1 },
+]), async (req, res) => {
+  try {
     const { _id } = req.body;
-    const { anhbia } = req.files;
-    try {
-      const user = await User.findOne({ _id: _id });
-      if (user) {
-        user.anhbia = anhbia[0].path;
-        await user.save();
-        res.json({ status: 1, message: 'Cập nhật thành công' });
-      } else {
-        res.json({ status: 0, message: 'Người dùng không tồn tại' });
-      }
-    } catch (err) {
-      res.json({ status: 0, message: 'Lỗi khi cập nhật' });
+    const { anhbia, avatar } = req.files;
+    const { gioitinh, ngaysinh } = req.body;
+
+    const user = await User.findOne({ _id: _id });
+
+    if (!user) {
+      return res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
-  });
+
+    user.gioitinh = gioitinh;
+    user.ngaysinh = ngaysinh;
+
+    if (anhbia) {
+      user.anhbia = anhbia[0].path;
+    }
+
+    if (avatar) {
+      user.avatar = avatar[0].path;
+    }
+
+    await user.save();
+
+    let successMessage;
+    if (anhbia && avatar) {
+      successMessage = 'Cập nhật thành công 4';
+    } else if (anhbia) {
+      successMessage = 'Cập nhật thành công 3';
+    } else if (avatar) {
+      successMessage = 'Cập nhật thành công 2';
+    } else {
+      successMessage = 'Cập nhật thành công 1';
+    }
+
+    res.json({ status: 1, message: successMessage });
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi cập nhật ' + err.message });
+  }
+});
+
 
 // cập nhật profile
 // http://localhost:3001/user/update-profile
 
-router.post('/update-profile', async (req, res) => {
+router.post('/update-thongtin', async (req, res) => {
   const { _id, name, gioitinh, ngaysinh } = req.body;
   try {
     const user = await User.findOne({ _id: _id });
