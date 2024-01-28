@@ -6,14 +6,8 @@ const users = new Schema(
   {
     id: { type: ObjectId },
     name: { type: String },
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      match: /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/,
-      unique: true,
-      lowercase: true,
-    },
+    email: { type: String },
+    token: { type: String },
     password: { type: String, required: true },
     gender: { type: String },
     date: { type: String },
