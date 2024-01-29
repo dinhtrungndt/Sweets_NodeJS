@@ -1,40 +1,38 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/users'); // Đổi tên model từ "login" thành "user"
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+const User = require("../models/users"); // Đổi tên model từ "login" thành "user"
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 const saltRounds = 10;
 
-
-var multer = require('multer');
+var multer = require("multer");
 // // thêm ảnh
-const cloudinary = require('../configs/cloundinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require("../configs/cloundinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  folder: 'bida',
+  folder: "bida",
   allowedFormats: ["jpg", "png", "jpeg"],
   transformation: [{ width: 500, height: 500, crop: "limit" }],
-
 });
 const upload = multer({
   storage: storage,
 });
 // Lấy danh sách người dùng
 // http://localhost:3001/user/get-users
-router.get('/get-users', async (req, res) => {
+router.get("/get-users", async (req, res) => {
   try {
     const users = await User.find();
     res.json({ users });
   } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi lấy danh sách người dùng' });
+    res.json({ status: 0, message: "Lỗi khi lấy danh sách người dùng" });
   }
 });
 
-const secretKey = 'jaktpyotjpcpefmo';
+const secretKey = "jaktpyotjpcpefmo";
 // http://localhost:3001/user/forgot-password
-router.post('/forgot-password', (req, res) => {
+router.post("/forgot-password", (req, res) => {
   const { email } = req.body;
   // Kiểm tra xem email có tồn tại trong hệ thống hay không
   // Nếu có, tạo mã JWT và gửi email
@@ -44,48 +42,54 @@ router.post('/forgot-password', (req, res) => {
   };
 
   // Tạo mã JWT với thời gian sống (expiresIn) là ví dụ 1 giờ
-  const token = jwt.sign(payload, secretKey, { expiresIn: '5m' });
+  const token = jwt.sign(payload, secretKey, { expiresIn: "5m" });
 
   // Gửi email với mã JWT
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
-      user: 'nguyenhuudung312337@gmail.com',
-      pass: 'jaktpyotjpcpefmo',
+      user: "nguyenhuudung312337@gmail.com",
+      pass: "jaktpyotjpcpefmo",
     },
   });
 
   const mailOptions = {
-    from: 'nguyenhuudung312337@gmail.com',
+    from: "nguyenhuudung312337@gmail.com",
     to: email,
-    subject: 'Khôi phục mật khẩu',
+    subject: "Khôi phục mật khẩu",
     text: `Link khôi phục mật khẩu: http://localhost:3001/reset-password/${token}`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.status(500).json({ status: 0, message: 'Không thể gửi về mail này' });
+      res.status(500).json({ status: 0, message: "Không thể gửi về mail này" });
     } else {
-      console.log('Email sent: ' + info.response);
-      res.status(200).json({ status: 1, message: 'Gửi mã về mail thành công' + token });
+      console.log("Email sent: " + info.response);
+      res
+        .status(200)
+        .json({ status: 1, message: "Gửi mã về mail thành công" + token });
     }
   });
 });
 
 // Endpoint để xác minh mã JWT khi người dùng nhấn vào liên kết trong email3001
-router.post('/reset-password/:token', (req, res) => {
+router.post("/reset-password/:token", (req, res) => {
   const { token } = req.params;
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       console.error(err);
-      return res.status(401).json({ status: 0, message: 'Invalid or expired token' });
+      return res
+        .status(401)
+        .json({ status: 0, message: "Invalid or expired token" });
     }
     // Token hợp lệ, có thể thực hiện các bước khôi phục mật khẩu tại đây
     // Ví dụ: trả về trang đổi mật khẩu
 
-    res.status(200).json({ status: 1, message: 'Token verified successfully', decoded });
+    res
+      .status(200)
+      .json({ status: 1, message: "Token verified successfully", decoded });
   });
 });
 // cập nhật token vào user
@@ -165,8 +169,7 @@ router.post('/change-password', async (req, res) => {
   }
   try {
     const decoded = jwt.verify(token, secretKey);
-    if (!decoded || !decoded.email) {
-      return res.status(0).json({ success: false, message: 'Token bị lỗi' });
+    if (!decoded || !decoded.email) {return res.status(0).json({ success: false, message: 'Token bị lỗi' });
     }
     // Tìm người dùng trong cơ sở dữ liệu bằng địa chỉ email từ decoded token
     const user = await User.findOne({ email: decoded.email });
@@ -193,7 +196,7 @@ router.post('/change-password', async (req, res) => {
 // http://localhost:3001/user/post-register
 router.post('/post-register', async (req, res) => {
   try {
-    const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
+    const { name, email, password, gender, date, avatar, coverImage } = req.body;
     // chuyển email về chữ thường
     const lowerCaseEmail = email.toLowerCase();
     const user = await User.findOne({ email: lowerCaseEmail });
@@ -205,14 +208,14 @@ router.post('/post-register', async (req, res) => {
         name: name,
         email: email,
         password: hash,
-        gioitinh: gioitinh,
-        ngaysinh: ngaysinh,
+        gender: gender,
+        date: date,
         avatar: avatar,
-        anhbia: anhbia,
+        coverImage: coverImage,
         token: 'null',
       };
 
-      res.json({ status: 1, message: 'Đăng ký thành công' });
+      res.json({ status: 1, message: 'Đăng ký thành công', newUser });
       await User.create(newUser);
     }
   } catch (err) {
@@ -247,8 +250,7 @@ router.post('/post-update-password', async (req, res) => {
       res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
   } catch (error) {
-    console.error(error);
-    res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
+    console.error(error);res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
   }
 });
 // Cập nhật thông tin người dùng
@@ -273,25 +275,25 @@ router.post('/post-update-password', async (req, res) => {
 // cập nhật ảnh bìa
 // http://localhost:3001/user/update-anhbia
 router.post('/update-profile', upload.fields([
-  { name: 'anhbia', maxCount: 1 },
+  { name: 'coverImage', maxCount: 1 },
   { name: 'avatar', maxCount: 1 },
 ]), async (req, res) => {
   try {
-    const { _id } = req.body;
-    const { anhbia, avatar } = req.files;
-    const { gioitinh, ngaysinh } = req.body;
+    const { email } = req.body;
+    const { coverImage, avatar } = req.files;
+    const { gender, date } = req.body;
 
-    const user = await User.findOne({ _id: _id });
+    const user = await User.findOne({ email: email });
 
     if (!user) {
       return res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
 
-    user.gioitinh = gioitinh;
-    user.ngaysinh = ngaysinh;
+    user.gender = gender;
+    user.date = date;
 
-    if (anhbia) {
-      user.anhbia = anhbia[0].path;
+    if (coverImage) {
+      user.coverImage = coverImage[0].path;
     }
 
     if (avatar) {
@@ -301,9 +303,9 @@ router.post('/update-profile', upload.fields([
     await user.save();
 
     let successMessage;
-    if (anhbia && avatar) {
+    if (coverImage && avatar) {
       successMessage = 'Cập nhật thành công 4';
-    } else if (anhbia) {
+    } else if (coverImage) {
       successMessage = 'Cập nhật thành công 3';
     } else if (avatar) {
       successMessage = 'Cập nhật thành công 2';
@@ -322,13 +324,13 @@ router.post('/update-profile', upload.fields([
 // http://localhost:3001/user/update-profile
 
 router.post('/update-thongtin', async (req, res) => {
-  const { _id, name, gioitinh, ngaysinh } = req.body;
+  const { _id, name, gender, date } = req.body;
   try {
     const user = await User.findOne({ _id: _id });
     if (user) {
       user.name = name;
-      user.gioitinh = gioitinh;
-      user.ngaysinh = ngaysinh;
+      user.gender = gender;
+      user.date = date;
       await user.save();
       res.json({ status: 1, message: 'Cập nhật thành công' });
     } else {
@@ -340,46 +342,42 @@ router.post('/update-thongtin', async (req, res) => {
 });
 // tìm kiếm user
 // http://localhost:3001/user/search-user
-router.post('/search-user', async (req, res) => {
+router.post("/search-user", async (req, res) => {
   const { name } = req.body;
   try {
     const users = await User.find(
-      { name: { $regex: new RegExp(name, 'i') } },
-      { name: 1, avatar: 1, ngaysinh: 1 }
+      { name: { $regex: new RegExp(name, "i") } },
+      { name: 1, avatar: 1, date: 1 }
     );
 
     if (users.length > 0) {
-      res.json({ status: 1, message: 'Tìm kiếm thành công', users });
+      res.json({ status: 1, message: "Tìm kiếm thành công", users });
     } else {
-      res.json({ status: 0, message: 'Không tìm thấy' });
+      res.json({ status: 0, message: "Không tìm thấy" });
     }
   } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
+    res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
   }
 });
 // search all post
 // http://localhost:3001/user/search-post
 
-router.post('/search-all-post', async (req, res) => {
+router.post("/search-all-post", async (req, res) => {
   const { name } = req.body;
   try {
     const users = await User.find(
-      { name: { $regex: new RegExp(name, 'i') } },
+      { name: { $regex: new RegExp(name, "i") } },
       { posts: 1 }
     );
 
     if (users.length > 0) {
-      res.json({ status: 1, message: 'Tìm kiếm thành công', users });
+      res.json({ status: 1, message: "Tìm kiếm thành công", users });
     } else {
-      res.json({ status: 0, message: 'Không tìm thấy' });
+      res.json({ status: 0, message: "Không tìm thấy" });
     }
   } catch (err) {
-    res.json({ status: 0, message: 'Lỗi khi tìm kiếm', error: err.message });
+    res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
   }
 });
-
-
-
-
 
 module.exports = router;
