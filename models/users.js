@@ -19,6 +19,7 @@ const users = new Schema(
     date: { type: String },
     avatar: { type: String },
     coverImage: { type: String },
+    token: { type: String },
   },
   {
     versionKey: false,

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user'); // Đổi tên model từ "login" thành "user"
+const User = require('../models/users'); // Đổi tên model từ "login" thành "user"
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
@@ -193,7 +193,7 @@ router.post('/change-password', async (req, res) => {
 // http://localhost:3001/user/post-register
 router.post('/post-register', async (req, res) => {
   try {
-    const { name, email, password, gioitinh, ngaysinh, avatar, anhbia } = req.body;
+    const { name, email, password, gender, date, avatar, coverImage } = req.body;
     // chuyển email về chữ thường
     const lowerCaseEmail = email.toLowerCase();
     const user = await User.findOne({ email: lowerCaseEmail });
@@ -205,14 +205,14 @@ router.post('/post-register', async (req, res) => {
         name: name,
         email: email,
         password: hash,
-        gioitinh: gioitinh,
-        ngaysinh: ngaysinh,
+        gender: gender,
+        date: date,
         avatar: avatar,
-        anhbia: anhbia,
+        coverImage: coverImage,
         token: 'null',
       };
 
-      res.json({ status: 1, message: 'Đăng ký thành công' });
+      res.json({ status: 1, message: 'Đăng ký thành công', newUser });
       await User.create(newUser);
     }
   } catch (err) {
@@ -273,25 +273,25 @@ router.post('/post-update-password', async (req, res) => {
 // cập nhật ảnh bìa
 // http://localhost:3001/user/update-anhbia
 router.post('/update-profile', upload.fields([
-  { name: 'anhbia', maxCount: 1 },
+  { name: 'coverImage', maxCount: 1 },
   { name: 'avatar', maxCount: 1 },
 ]), async (req, res) => {
   try {
-    const { _id } = req.body;
-    const { anhbia, avatar } = req.files;
-    const { gioitinh, ngaysinh } = req.body;
+    const { email } = req.body;
+    const { coverImage, avatar } = req.files;
+    const { gender, date } = req.body;
 
-    const user = await User.findOne({ _id: _id });
+    const user = await User.findOne({ email: email });
 
     if (!user) {
       return res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
 
-    user.gioitinh = gioitinh;
-    user.ngaysinh = ngaysinh;
+    user.gender = gender;
+    user.date = date;
 
-    if (anhbia) {
-      user.anhbia = anhbia[0].path;
+    if (coverImage) {
+      user.coverImage = coverImage[0].path;
     }
 
     if (avatar) {
@@ -301,9 +301,9 @@ router.post('/update-profile', upload.fields([
     await user.save();
 
     let successMessage;
-    if (anhbia && avatar) {
+    if (coverImage && avatar) {
       successMessage = 'Cập nhật thành công 4';
-    } else if (anhbia) {
+    } else if (coverImage) {
       successMessage = 'Cập nhật thành công 3';
     } else if (avatar) {
       successMessage = 'Cập nhật thành công 2';
@@ -322,13 +322,13 @@ router.post('/update-profile', upload.fields([
 // http://localhost:3001/user/update-profile
 
 router.post('/update-thongtin', async (req, res) => {
-  const { _id, name, gioitinh, ngaysinh } = req.body;
+  const { _id, name, gender, date } = req.body;
   try {
     const user = await User.findOne({ _id: _id });
     if (user) {
       user.name = name;
-      user.gioitinh = gioitinh;
-      user.ngaysinh = ngaysinh;
+      user.gender = gender;
+      user.date = date;
       await user.save();
       res.json({ status: 1, message: 'Cập nhật thành công' });
     } else {
@@ -345,7 +345,7 @@ router.post('/search-user', async (req, res) => {
   try {
     const users = await User.find(
       { name: { $regex: new RegExp(name, 'i') } },
-      { name: 1, avatar: 1, ngaysinh: 1 }
+      { name: 1, avatar: 1, date: 1 }
     );
 
     if (users.length > 0) {
