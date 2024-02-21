@@ -39,21 +39,40 @@ router.get("/get-share/:idPosts", async (req, res) => {
 router.put('/update-posts/:idPosts', async (req, res) => {
   const { idPosts } = req.params;
   const { content, idObject, idTypePosts, idShare } = req.body;
-  const posts = await postsModels.findById(idPosts);
-  if (posts) {
-    posts.content = content;
-    posts.idObject = idObject;
-    posts.idTypePosts = idTypePosts;
-    posts.idShare = idShare;
-    await posts.save();
-    res.json({
-      status: 'success',
-      message: 'Cập nhật bài viết thành công'
-    })
-  } else {
-    res.status(404).json({ message: 'Bài viết không tồn tại' });
+
+  try {
+    const posts = await postsModels.findById(idPosts);
+
+    if (posts) {
+      if (content !== undefined) {
+        posts.content = content;
+      }
+
+      if (idObject !== undefined) {
+        posts.idObject = idObject;
+      }
+
+      if (idTypePosts !== undefined) {
+        posts.idTypePosts = idTypePosts;
+      }
+
+      if (idShare !== undefined) {
+        posts.idShare = idShare;
+      }
+
+      await posts.save();
+
+      res.json({
+        status: 'success',
+        message: 'Cập nhật bài viết thành công',
+      });
+    } else {
+      res.status(404).json({ message: 'Bài viết không tồn tại' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error 500' });
   }
-})
+});
 
 // Xóa bài viết theo idPosts
 // http://localhost:3001/posts/delete-posts/:idPosts

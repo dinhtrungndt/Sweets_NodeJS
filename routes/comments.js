@@ -14,7 +14,10 @@ router.get('/', async (req, res) => {
 router.get("/get-comment/:idPosts", async (req, res) => {
   try {
     const { idPosts } = req.params;
-    const data = await commentModel.find({ idPosts });
+    const data = await commentModel
+      .find({ idPosts })
+      .populate("idUsers", "name avatar")
+      .populate("idParent");
     res.json(data);
   } catch (error) {
     res.json({

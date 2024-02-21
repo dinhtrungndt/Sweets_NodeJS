@@ -380,4 +380,29 @@ router.post("/search-all-post", async (req, res) => {
   }
 });
 
+// cập nhập thông tin user
+// http://localhost:3001/users/update-allinfor/:id
+router.post("/update-allinfor/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, email, token, password, gender, date, avatar, coverImage } =
+    req.body;
+  try {
+    const user = await User.findOne({ _id: id });
+    if (user) {
+      user.name = name;
+      user.email = email;
+      user.token = token;
+      user.password = password;
+      user.gender = gender;
+      user.date = date;
+      user.avatar = avatar;
+      user.coverImage = coverImage;
+      await user.save();
+      res.json({ status: 1, message: "Cập nhật thành công" });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: "Lỗi khi cập nhật" });
+  }
+});
+
 module.exports = router;

@@ -70,7 +70,7 @@ router.post("/add", async (req, res) => {
 router.get("/getPostsId/:idPosts", async (req, res) => {
   try {
     const { idPosts } = req.params;
-    const data = await reactionModel.find({ idPosts });
+    const data = await reactionModel.find({ idPosts }).populate("idUsers", "name avatar");
     res.json(data);
   } catch (error) {
     res.json(error);
