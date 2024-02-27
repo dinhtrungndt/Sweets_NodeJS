@@ -406,32 +406,7 @@ router.post("/update-allinfor/:id", async (req, res) => {
 });
 
 
-router.get("/get-friends", async (req, res) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
 
-  try {
-  
-    const decoded = jwt.verify(token, 'shhhhh');
-    const email = decoded.email;
-
-   
-    const user = await User.findOne({ email });
-
-    if (user) {
-    
-      const friends = user.friends;
-
-    
-      res.json({ friends });
-    } else {
-      // Trả về thông báo nếu không tìm thấy người dùng với email tương ứng
-      res.json({ status: 0, message: "Không tìm thấy người dùng" });
-    }
-  } catch (err) {
-    // Xử lý lỗi nếu có
-    res.json({ status: 0, message: "Lỗi khi lấy danh sách bạn bè từ token" });
-  }
-});
 
 
 
