@@ -7,9 +7,9 @@ const comments = new Schema(
     id: { type: ObjectId },
     idUsers: { type: ObjectId, ref: "users" },
     idPosts: { type: ObjectId, ref: "posts" },
-    idParent: { type: ObjectId, ref: "comments" },
+    idParent: { type: ObjectId, ref: "comments", default: null},
     content: { type: String },
-    createAt: { type: String },
+    createAt: { type: Date, default: Date.now },
   },
   {
     versionKey: false,

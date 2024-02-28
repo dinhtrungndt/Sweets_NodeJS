@@ -28,6 +28,10 @@ var postsRouter = require("./routes/posts");
 
 var app = express();
 
+const cors = require("cors");
+
+app.use(cors());
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
