@@ -37,7 +37,7 @@ const upload = multer({
 });
 
 // Upload ảnh
-// http://localhost:3001/posts/upload-imageStatus
+// http://localhost:3001/media/upload-imageStatus
 router.post(
   "/upload-imageStatus",
   upload.array("imageStatus", 5),

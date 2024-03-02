@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 const postsModels = require('../models/posts');
+const typePostsModels = require('../models/typeposts');
 
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
@@ -81,7 +82,6 @@ router.delete('/delete-posts/:idPosts', async (req, res) => {
   await postsModels.findByIdAndDelete(idPosts);
   res.json({ message: 'Xóa bài viết thành công' });
 });
-
 
 module.exports = router;
 
