@@ -103,42 +103,36 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
     const { idUsers, idPosts } = req.params;
     const { type } = req.body;
 
-    const checkReaction = await reactionModel.findOne({ idUsers, idPosts });
-    if (checkReaction) {
-      console.log("Existing reaction:", checkReaction);
+    const existingReaction = await reactionModel.findOne({ idUsers, idPosts });
 
-      if (checkReaction.type === type) {
-        await reactionModel.findOneAndUpdate(
-          { idUsers, idPosts },
-          { type: "None" } 
-        );
-
-        console.log(`Removing ${type} reaction`);
+    if (existingReaction) {
+      if (existingReaction.type === type) {
+        await reactionModel.findByIdAndDelete(existingReaction._id);
       } else {
-        await reactionModel.findOneAndUpdate({ idUsers, idPosts }, { type });
-
-        console.log(`Updating reaction to ${type}`);
+        await reactionModel.findByIdAndUpdate(existingReaction._id, { type });
       }
-
       return res.json({
-        status: "success",
+        status: 1,
+        message: "Cập nhật reaction thành công",
+        idPosts,
+      });
+    } else {
+      const reaction = new reactionModel({ idUsers, idPosts, type });
+      await reaction.save();
+      return res.json({
+        status: 1,
         message: "Thêm mới reaction thành công",
+        idPosts,
       });
     }
-    
-    const reaction = new reactionModel({ idUsers, idPosts, type });
-    await reaction.save();
-    res.json({
-      status: "success",
-      message: "Thêm mới reaction thành công",
-    });
   } catch (error) {
-    res.json({
-      status: "error",
+    res.status(500).json({
+      status: 0,
       message: "Thêm mới reaction thất bại",
       error: error,
     });
   }
 });
+
 
 module.exports = router;
