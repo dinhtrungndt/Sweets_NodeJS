@@ -221,7 +221,7 @@ router.post('/post-register', async (req, res) => {
 });
 
 // đổi mật khẩu
-// http://localhost:3001/user/post-update-password
+// http://localhost:3001/user/post-update-password 123
 router.post('/post-update-password', async (req, res) => {
 
   const { _id, password, newPassword } = req.body;
