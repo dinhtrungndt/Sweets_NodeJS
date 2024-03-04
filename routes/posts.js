@@ -29,7 +29,7 @@ router.get("/get-share/:idPosts", async (req, res) => {
   try {
     const { idPosts } = req.params;
     const data = await postsModels.find({ idShare: idPosts });
-    res.json( data );
+    res.json(data);
   } catch (error) {
     res.json(error);
   }
@@ -81,6 +81,22 @@ router.delete('/delete-posts/:idPosts', async (req, res) => {
   const { idPosts } = req.params;
   await postsModels.findByIdAndDelete(idPosts);
   res.json({ message: 'Xóa bài viết thành công' });
+});
+
+
+router.post("/search-all-post", async (req, res) => {
+  const { content } = req.body;
+  try {
+    const posts = await postsModels.find({ content: { $regex: content, $options: "i" } });
+
+    if (posts.length > 0) {
+      res.json({ status: 1, message: "Tìm kiếm thành công", posts });
+    } else {
+      res.json({ status: 0, message: "Không tìm thấy" });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
+  }
 });
 
 module.exports = router;
