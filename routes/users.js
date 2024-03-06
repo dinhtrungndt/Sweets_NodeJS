@@ -362,23 +362,7 @@ router.post("/search-user", async (req, res) => {
 // search all post
 // http://localhost:3001/user/search-post
 
-router.post("/search-all-post", async (req, res) => {
-  const { name } = req.body;
-  try {
-    const users = await User.find(
-      { name: { $regex: new RegExp(name, "i") } },
-      { posts: 1 }
-    );
 
-    if (users.length > 0) {
-      res.json({ status: 1, message: "Tìm kiếm thành công", users });
-    } else {
-      res.json({ status: 0, message: "Không tìm thấy" });
-    }
-  } catch (err) {
-    res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
-  }
-});
 
 // cập nhập thông tin user
 // http://localhost:3001/users/update-allinfor/:id
