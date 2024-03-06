@@ -47,48 +47,4 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Thêm mới comment dựa theo idUsers, idPosts và idParent
-// http://localhost:3001/comments/add/:idUsers/:idPosts/:idParent
-router.post('/add/:idUsers/:idPosts/:idParent', async (req, res) => {
-  try {
-    const { idUsers, idPosts, idParent } = req.params;
-    const { content } = req.body;
-
-    const comment = new commentModel({ idUsers, idPosts, idParent, content });
-    await comment.save();
-
-    res.json({
-        status: 'success',
-        message: 'Thêm mới comment thành công',
-        data: comment,
-    });
-  } catch (error) {
-    res.json({
-        status: 'error',
-        message: 'Thêm mới comment thất bại',
-    });
-  }
-});
-
-// Thêm mới comment dựa theo idUsers và idPosts
-// http://localhost:3001/comments/add/:idUsers/:idPosts
-
-// Xóa comment
-// http://localhost:3001/comments/delete/:id
-router.delete('/delete/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await commentModel.findByIdAndDelete(id);
-    res.json({
-        status: 1,
-        message: 'Xóa comment thành công',
-    })
-  } catch (error) {
-    res.json({
-        status: 0,
-        message: 'Xóa comment thất bại',
-    })
-  }
-});
-
 module.exports = router;
