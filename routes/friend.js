@@ -3,6 +3,7 @@ const router = express.Router();
 const Friend = require("../models/friend");
 
 // Gửi lời mời kết bạn
+http://localhost:3001/friend/send-friend-request
 router.post("/send-friend-request", async (req, res) => {
     try {
       // Nhận thông tin từ request body

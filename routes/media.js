@@ -13,9 +13,9 @@ router.get("/get-media", async (req, res) => {
 
 // Cấu hình Cloudinary
 cloudinary.v2.config({
-  cloud_name: "dztqqxnqr",
-  api_key: "354695779786942",
-  api_secret: "Ow2cqIZwL2-VjMAWU0ENdVCmxbE",
+  cloud_name: "dfh1x8dtw",
+  api_key: "182242976743445",
+  api_secret: "AtujP-65GcmIXf2cZcT0iI9T5_I",
   secure: true,
 });
 
