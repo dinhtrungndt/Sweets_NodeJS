@@ -82,6 +82,8 @@ router.delete('/delete-posts/:idPosts', async (req, res) => {
   res.json({ message: 'Xóa bài viết thành công' });
 });
 
+// Đăng bài viết
+
 
 module.exports = router;
 
