@@ -405,4 +405,21 @@ router.post("/update-allinfor/:id", async (req, res) => {
   }
 });
 
+// Xóa người dùng dựa vào id
+// http://localhost:3001/users/delete-user/:id
+router.delete('/delete-user/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findOneAndDelete({ _id: id });
+    if (user) {
+      res.json({ status: 1, message: 'Xóa người dùng thành công' });
+    } else {
+      res.json({ status: 0, message: 'Người dùng không tồn tại' });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: 'Lỗi khi xóa người dùng' });
+  }
+});
+
+
 module.exports = router;
