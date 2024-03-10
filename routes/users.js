@@ -421,5 +421,43 @@ router.delete('/delete-user/:id', async (req, res) => {
   }
 });
 
+// Cập nhập avatar
+// http://localhost:3001/users/update-avatar/:id
+router.put('/update-avatar/:id', upload.single('avatar'), async (req, res) => {
+  const { id } = req.params;
+  const { avatar } = req.body;
+  try {
+     const user = await User.findOne({ _id: id });
+     if (user) {
+       user.avatar = avatar;
+       await user.save();
+       res.json({ status: 1, message: 'Cập nhật avatar thành công' });
+     } else {
+       res.json({ status: 0, message: 'Người dùng không tồn tại' });
+     }
+   } catch (err) {
+     res.json({ status: 0, message: 'Lỗi khi cập nhật avatar' });
+   }
+});
+
+// Cập nhập ảnh bìa
+// http://localhost:3001/users/update-coverImage/:id
+router.put('/update-coverImage/:id', upload.single('coverImage'), async (req, res) => {
+  const { id } = req.params;
+  const { coverImage } = req.body;
+  try {
+     const user = await User.findOne({ _id: id });
+     if (user) {
+       user.coverImage = coverImage;
+       await user.save();
+       res.json({ status: 1, message: 'Cập nhật coverImage thành công' });
+     } else {
+       res.json({ status: 0, message: 'Người dùng không tồn tại' });
+     }
+   } catch (err) {
+     res.json({ status: 0, message: 'Lỗi khi cập nhật coverImage' });
+   }
+});
+
 
 module.exports = router;
