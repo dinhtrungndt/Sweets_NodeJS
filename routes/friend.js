@@ -265,7 +265,7 @@ router.get("/friends/:idUser", async (req, res) => {
 
     // Lọc lại chỉ còn danh sách id của bạn bè
     const filteredFriendsList = friendsList.map(friend => {
-      return friend.idFriendSender === idUser ? friend.idFriendReceiver : friend.idFriendSender;
+      return friend.idFriendSender == idUser ? friend.idFriendReceiver : friend.idFriendSender;
     });
 
     // Trả về danh sách id của bạn bè
