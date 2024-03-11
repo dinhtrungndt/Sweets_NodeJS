@@ -224,5 +224,67 @@ router.get("/friend-requests/:idFriendReceiver", async (req, res) => {
   }
 });
 
+// Lấy danh sách đã gửi lời mời kết bạn theo idFriendSender
+// http://localhost:3001/friend/friend-requests-sent/:idFriendSender
+router.get("/friend-requests-sent/:idFriendSender", async (req, res) => {
+  try {
+    const idFriendSender = req.params.idFriendSender;
+
+    // Tìm tất cả lời mời kết bạn chưa được chấp nhận gửi từ idFriendSender
+    const friendRequestsSent = await Friend.find({
+      idFriendSender,
+      status: false,
+    });
+
+    // Trả về danh sách lời mời kết bạn
+    res
+      .status(200)
+      .json({ success: true, friendRequestsSent });
+  } catch (error) {
+    console.error(error);
+    // Trả về lỗi nếu có vấn đề khi lấy danh sách lời mời kết bạn
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Lỗi khi lấy danh sách lời mời kết bạn",
+      });
+  }
+});
+
+// Lấy danh sách bạn bè theo idUser
+// http://localhost:3001/friend/friends/:idUser
+router.get("/friends/:idUser", async (req, res) => {
+  try {
+    const idUser = req.params.idUser;
+
+    // Tìm tất cả bạn bè của người dùng có idUser
+    const friendsList = await Friend.find({
+      $or: [{ idFriendSender: idUser, status: true }, { idFriendReceiver: idUser, status: true }],
+    });
+
+    // Lọc lại chỉ còn danh sách id của bạn bè
+    const filteredFriendsList = friendsList.map(friend => {
+      return friend.idFriendSender === idUser ? friend.idFriendReceiver : friend.idFriendSender;
+    });
+
+    // Trả về danh sách id của bạn bè
+    res
+      .status(200)
+      .json({ success: true, friendsList: filteredFriendsList });
+  } catch (error) {
+    console.error(error);
+    // Trả về lỗi nếu có vấn đề khi lấy danh sách bạn bè
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Lỗi khi lấy danh sách bạn bè",
+      });
+  }
+});
+
+
+
 
 module.exports = router;
