@@ -196,4 +196,33 @@ router.post("/cancel-friend-request", async (req, res) => {
   }
 });
 
+// Lấy danh sách lời mời kết bạn theo idFriendReceiver
+// http://localhost:3001/friend/friend-requests/:idFriendReceiver
+router.get("/friend-requests/:idFriendReceiver", async (req, res) => {
+  try {
+    const idFriendReceiver = req.params.idFriendReceiver;
+
+    // Tìm tất cả lời mời kết bạn chưa được chấp nhận cho idFriendReceiver
+    const friendRequests = await Friend.find({
+      idFriendReceiver,
+      status: false,
+    });
+
+    // Trả về danh sách lời mời kết bạn
+    res
+      .status(200)
+      .json({ success: true, friendRequests });
+  } catch (error) {
+    console.error(error);
+    // Trả về lỗi nếu có vấn đề khi lấy danh sách lời mời kết bạn
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Lỗi khi lấy danh sách lời mời kết bạn",
+      });
+  }
+});
+
+
 module.exports = router;
