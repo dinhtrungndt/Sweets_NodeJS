@@ -441,10 +441,7 @@ router.delete("/delete-user/:id", async (req, res) => {
 router.put("/update-avatar/:id", async function (req, res) {
   try {
     const { id } = req.params;
-    // Các bước cập nhập thông tin người dùng
     console.log(req.body);
- 
-    // Tìm người dùng trong cơ sở dữ liệu dựa trên id
     const user = await User.findById(id);
     if (!user) {
       return res.json({ status: 0, message: "Người dùng không tồn tại" });
@@ -465,31 +462,26 @@ router.put("/update-avatar/:id", async function (req, res) {
     user.coverImage = coverImage || user.coverImage;
 
     if (avatar && typeof avatar === 'string') {
-      // Kiểm tra xem avatar có phải là một chuỗi JSON không
       try {
         const avatarArray = JSON.parse(avatar);
         if (Array.isArray(avatarArray) && avatarArray.length > 0) {
-          user.avatar = avatarArray[0]; // Lấy phần tử đầu tiên của mảng avatar
+          user.avatar = avatarArray[0]; 
         }
       } catch (error) {
-        console.error("Error parsing avatar JSON:", error);
+        console.error("Lỗi JSON nhé T:", error);
       }
     }
 
     if (coverImage && typeof coverImage === 'string') {
-          // Kiểm tra xem coverImage có phải là một chuỗi JSON không
           try {
             const coverImageArray = JSON.parse(coverImage);
             if (Array.isArray(coverImageArray) && coverImageArray.length > 0) {
-              user.coverImage = coverImageArray[0]; // Lấy phần tử đầu tiên của mảng coverImage
+              user.coverImage = coverImageArray[0]; 
             }
           } catch (error) {
-            console.error("Error parsing coverImage JSON:", error);
+            console.error("Lỗi JSON nhé T:", error);
           }
         }
-    
-
-        // Hash mật khẩu trước khi cập nhập (nếu có)
         if (password) {
           const hashedPassword = await bcrypt.hash(password, 10);
           user.password = hashedPassword;
