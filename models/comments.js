@@ -9,6 +9,7 @@ const comments = new Schema(
     idPosts: { type: ObjectId, ref: "posts" },
     idParent: { type: ObjectId, ref: "comments", default: null},
     content: { type: String },
+    image: [{ type: String }],
     createAt: { type: Date, default: Date.now },
   },
   {

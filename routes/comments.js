@@ -75,9 +75,9 @@ router.post('/add/:idUsers/:idPosts/:idParent', async (req, res) => {
 router.post('/add/:idUsers/:idPosts', async (req, res) => {
   try {
     const { idUsers, idPosts } = req.params;
-    const { content } = req.body;
+    const { content, image } = req.body;
 
-    const comment = new commentModel({ idUsers, idPosts, content });
+    const comment = new commentModel({ idUsers, idPosts, content, image });
     await comment.save();
 
     res.json({
