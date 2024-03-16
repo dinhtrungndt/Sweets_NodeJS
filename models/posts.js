@@ -9,7 +9,7 @@ const posts = new Schema(
     createAt: { type: Date, default: Date.now },
     idObject: { type: ObjectId, ref: "object" },
     idTypePosts: { type: ObjectId, ref: "typePosts" },
-    idShare: { type: ObjectId, ref: "posts", default: null},
+    idShare: { type: ObjectId, ref: "posts", default: null },
     idUsers: { type: ObjectId, ref: "users" },
   },
   {
@@ -17,5 +17,4 @@ const posts = new Schema(
   }
 );
 
-module.exports =
-  mongoose.models.posts || mongoose.model("posts", posts);
+module.exports = mongoose.models.posts || mongoose.model("posts", posts);
