@@ -14,6 +14,7 @@ require("./models/object");
 require("./models/typeposts");
 require("./models/media");
 require("./models/posts");
+require("./models/listchat");
 
 var indexRouter = require("./routes/index");
 var userRouter = require("./routes/users");
@@ -25,6 +26,7 @@ var objectRouter = require("./routes/object");
 var typepostsRouter = require("./routes/typeposts");
 var mediaRouter = require("./routes/media");
 var postsRouter = require("./routes/posts");
+var listchat = require("./routes/listchat");
 
 var app = express();
 
@@ -59,6 +61,7 @@ app.use("/object", objectRouter);
 app.use("/typeposts", typepostsRouter);
 app.use("/media", mediaRouter);
 app.use("/posts", postsRouter);
+app.use("/listchat",listchat);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

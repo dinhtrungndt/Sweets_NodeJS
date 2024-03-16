@@ -83,7 +83,7 @@ router.delete('/delete-posts/:idPosts', async (req, res) => {
   res.json({ message: 'Xóa bài viết thành công' });
 });
 
-
+// http://localhost:3001/posts/search-all-post
 router.post("/search-all-post", async (req, res) => {
   const { content } = req.body;
   try {

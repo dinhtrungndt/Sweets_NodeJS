@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/users"); 
+const User = require("../models/users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
@@ -169,7 +169,8 @@ router.post('/change-password', async (req, res) => {
   }
   try {
     const decoded = jwt.verify(token, secretKey);
-    if (!decoded || !decoded.email) {return res.status(0).json({ success: false, message: 'Token bị lỗi' });
+    if (!decoded || !decoded.email) {
+      return res.status(0).json({ success: false, message: 'Token bị lỗi' });
     }
     // Tìm người dùng trong cơ sở dữ liệu bằng địa chỉ email từ decoded token
     const user = await User.findOne({ email: decoded.email });
@@ -250,7 +251,7 @@ router.post('/post-update-password', async (req, res) => {
       res.json({ status: 0, message: 'Người dùng không tồn tại' });
     }
   } catch (error) {
-    console.error(error);res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
+    console.error(error); res.json({ status: 0, message: 'Lỗi khi đổi mật khẩu' });
   }
 });
 // Cập nhật thông tin người dùng
@@ -359,8 +360,7 @@ router.post("/search-user", async (req, res) => {
     res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
   }
 });
-// search all post
-// http://localhost:3001/user/search-post
+
 
 
 
@@ -389,6 +389,8 @@ router.post("/update-allinfor/:id", async (req, res) => {
   }
 });
 
+// lấy chi tiết user
+// http://localhost:3001/users/detail?_id=
 
 
 
