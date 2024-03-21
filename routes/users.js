@@ -30,6 +30,24 @@ router.get("/get-users", async (req, res) => {
   }
 });
 
+// Lấy thông tin của một người dùng dựa trên ID
+// http://localhost:3001/users/get-user/:id
+router.get("/get-user/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ status: 0, message: "Không tìm thấy người dùng" });
+    }
+
+    res.json({ user });
+  } catch (err) {
+    res.status(500).json({ status: 0, message: "Lỗi khi lấy thông tin người dùng" });
+  }
+});
+
+
 const secretKey = "jaktpyotjpcpefmo";
 // http://localhost:3001/user/forgot-password
 router.post("/forgot-password", (req, res) => {
