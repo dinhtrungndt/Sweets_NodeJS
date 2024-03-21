@@ -133,12 +133,10 @@ router.post("/check-token", async (req, res) => {
       error.name === "JsonWebTokenError" ||
       error.name === "TokenExpiredError"
     ) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "Token không hợp lệ hoặc đã hết hạn",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "Token không hợp lệ hoặc đã hết hạn",
+      });
     }
     res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
@@ -461,38 +459,38 @@ router.put("/update-avatar/:id", async function (req, res) {
     user.avatar = avatar || user.avatar;
     user.coverImage = coverImage || user.coverImage;
 
-    if (avatar && typeof avatar === 'string') {
+    if (avatar && typeof avatar === "string") {
       try {
         const avatarArray = JSON.parse(avatar);
         if (Array.isArray(avatarArray) && avatarArray.length > 0) {
-          user.avatar = avatarArray[0]; 
+          user.avatar = avatarArray[0];
         }
       } catch (error) {
         console.error("Lỗi JSON nhé T:", error);
       }
     }
 
-    if (coverImage && typeof coverImage === 'string') {
-          try {
-            const coverImageArray = JSON.parse(coverImage);
-            if (Array.isArray(coverImageArray) && coverImageArray.length > 0) {
-              user.coverImage = coverImageArray[0]; 
-            }
-          } catch (error) {
-            console.error("Lỗi JSON nhé T:", error);
-          }
+    if (coverImage && typeof coverImage === "string") {
+      try {
+        const coverImageArray = JSON.parse(coverImage);
+        if (Array.isArray(coverImageArray) && coverImageArray.length > 0) {
+          user.coverImage = coverImageArray[0];
         }
-        if (password) {
-          const hashedPassword = await bcrypt.hash(password, 10);
-          user.password = hashedPassword;
-        }
+      } catch (error) {
+        console.error("Lỗi JSON nhé T:", error);
+      }
+    }
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
 
     await user.save();
 
     res.json({ status: 1, message: "Cập nhập thành công", data: user });
   } catch (err) {
-      console.error(err);
-      res.json({ status: 0, message: "Cập nhật thất bại", error: err.message });
+    console.error(err);
+    res.json({ status: 0, message: "Cập nhật thất bại", error: err.message });
   }
 });
 

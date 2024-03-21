@@ -16,9 +16,9 @@ router.get('/get-all-posts', async (req, res) => {
 // thêm bài viết theo idObject, idTypePosts và idUsers
 // http://localhost:3001/posts/add-posts/:idUsers
 router.post('/add-posts/:idUsers', async (req, res) => {
-  const { content, idObject, idTypePosts, idShare } = req.body;
+  const {_id, content, idObject, idTypePosts, idShare } = req.body;
   const { idUsers } = req.params;
-  const posts = new postsModels({ content, idObject, idTypePosts, idShare, idUsers });
+  const posts = new postsModels({ _id,content, idObject, idTypePosts, idShare, idUsers });
   await posts.save();
   res.json(posts);
 });
@@ -76,10 +76,10 @@ router.put('/update-posts/:idPosts', async (req, res) => {
 });
 
 // Xóa bài viết theo idPosts
-// http://localhost:3001/posts/delete-posts/:idPosts
-router.delete('/delete-posts/:idPosts', async (req, res) => {
-  const { idPosts } = req.params;
-  await postsModels.findByIdAndDelete(idPosts);
+// http://localhost:3001/posts/delete-posts/:_id
+router.delete('/delete-posts/:_id', async (req, res) => {
+  const { _id } = req.params;
+  await postsModels.findByIdAndDelete(_id);
   res.json({ message: 'Xóa bài viết thành công' });
 });
 

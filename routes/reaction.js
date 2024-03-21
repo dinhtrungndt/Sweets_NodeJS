@@ -138,5 +138,8 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
   }
 });
 
+// lấy tất cả danh sách bài viết của người dùng
+// http://localhost:3001/reaction/get-reaction/:postId/:userId
+
 
 module.exports = router;

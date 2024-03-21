@@ -69,7 +69,7 @@ router.post(
 router.post("/add-media/:idPosts", async (req, res) => {
   const { idPosts } = req.params;
   const { url, type } = req.body;
-
+  
   if (type !== "image" && type !== "video") {
     return res.json({ status: 0, message: "Không đúng loại" });
   }
@@ -94,8 +94,6 @@ router.get("/get-media/:idPosts", async (req, res) => {
 
   res.json(data);
 });
-
-
 
 // khi thêm bài viết và thêm luôn cả ảnh
 const uploadImage = async (req, res, next) => {

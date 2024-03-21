@@ -6,7 +6,7 @@ const comments = new Schema(
   {
     id: { type: ObjectId },
     idUsers: { type: ObjectId, ref: "users" },
-    idPosts: { type: ObjectId, ref: "posts" },
+    idPosts: { type: Number, required: true, unique: true , ref: "posts" },
     idParent: { type: ObjectId, ref: "comments", default: null},
     content: { type: String },
     image: [{ type: String }],

@@ -5,9 +5,9 @@ const ObjectId = Schema.ObjectId;
 const media = new Schema(
   {
     id: { type: ObjectId },
-    url: { type: String },
+    url: [{ type: String }],
     type: { type: String },
-    idPosts: { type: ObjectId, ref: "posts" },
+    idPosts: {  type: Number, required: true, unique: true , ref: "posts" },
   },
   {
     versionKey: false,
