@@ -103,18 +103,20 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
     const { idUsers, idPosts } = req.params;
     const { type } = req.body;
 
-    const existingReaction = await reactionModel.findOne({ idUsers, idPosts });
+    const nReaction = await reactionModel.findOne({ idUsers, idPosts }).populate('idPosts').populate("type");
 
-    if (existingReaction) {
-      if (existingReaction.type === type) {
-        await reactionModel.findByIdAndDelete(existingReaction._id);
+    if (nReaction) {
+      if (nReaction.type === type) {
+        await reactionModel.findByIdAndDelete(nReaction._id);
       } else {
-        await reactionModel.findByIdAndUpdate(existingReaction._id, { type });
+        await reactionModel.findByIdAndUpdate(nReaction._id, { type });
       }
       return res.json({
         status: 1,
         message: "Cập nhật reaction thành công",
         idPosts,
+        nReaction,
+        type
       });
     } else {
       const reaction = new reactionModel({ idUsers, idPosts, type });
@@ -123,6 +125,8 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
         status: 1,
         message: "Thêm mới reaction thành công",
         idPosts,
+        nReaction,
+        type
       });
     }
   } catch (error) {
@@ -133,6 +137,9 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
     });
   }
 });
+
+// lấy tất cả danh sách bài viết của người dùng
+// http://localhost:3001/reaction/get-reaction/:postId/:userId
 
 
 module.exports = router;
