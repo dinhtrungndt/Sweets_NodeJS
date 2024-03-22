@@ -1,0 +1,200 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API Sweets",
+      "description": "Sweets for your API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3001",
+        "description": "Local server"
+      }
+    ],
+    "paths": {
+      "/posts/get-all-posts": {
+        "get": {
+          "summary": "Get all posts",
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/get-posts-idObject/{idUsers}": {
+        "get": {
+          "summary": "Get posts by idObject",
+          "parameters": [
+            {
+              "name": "idUsers",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/add-posts/{idUsers}": {
+        "post": {
+          "summary": "Add a new post",
+          "parameters": [
+            {
+              "name": "idUsers",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/get-share/{idPosts}": {
+        "get": {
+          "summary": "Get share count by idPosts",
+          "parameters": [
+            {
+              "name": "idPosts",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/update-posts/{idPosts}": {
+        "put": {
+          "summary": "Update a post by idPosts",
+          "parameters": [
+            {
+              "name": "idPosts",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/delete-posts/{_id}": {
+        "delete": {
+          "summary": "Delete a post by _id",
+          "parameters": [
+            {
+              "name": "_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      },
+      "/posts/search-all-post": {
+        "post": {
+          "summary": "Search for posts by content",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchQuery"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Post": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "idObject": {
+              "type": "string"
+            },
+            "idTypePosts": {
+              "type": "string"
+            },
+            "idShare": {
+              "type": "string"
+            },
+            "idUsers": {
+              "type": "string"
+            }
+          }
+        },
+        "SearchQuery": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  

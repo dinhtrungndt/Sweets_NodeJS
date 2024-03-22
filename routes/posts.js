@@ -3,7 +3,8 @@ const router = express.Router();
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 const postsModels = require('../models/posts');
-const typePostsModels = require('../models/typeposts');
+const friendModels = require('../models/friend');
+const { ObjectId } = require('mongoose').Types;
 
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
@@ -12,6 +13,37 @@ router.get('/get-all-posts', async (req, res) => {
   data.reverse();
   res.json(data);
 });
+
+router.get('/get-posts-idObject/:idUsers', async (req, res) => {
+  try {
+    const idUsers = req.params.idUsers;
+
+    const friendsResponse = await friendModels.find({
+      $or: [{ idFriendSender: idUsers, status: true }, { idFriendReceiver: idUsers, status: true }],
+    });
+    const friendsList = friendsResponse.map(friend => friend.idFriendSender == idUsers ? friend.idFriendReceiver : friend.idFriendSender);
+    friendsList.push(idUsers);
+    
+    const data = await postsModels.find({
+      $or: [
+        { 
+          $and: [
+            { idUsers: { $in: friendsList } }, 
+            { idObject: { $ne: new ObjectId('65b1fe77ab07bc8ddd7de46c') } }, 
+          ]
+        },
+        { idUsers: idUsers },
+        { idObject: { $in: ["65b1fe1be09b1e99f9e8a235"] } } 
+      ]
+    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar");
+    
+    data.reverse();
+    res.json(data);
+  } catch (error) {
+    console.error('Error  get-posts-by-user:', error);
+    res.status(500).json({ message: 'Error  get-posts-by-user' });
+  }
+}); 
 
 // thêm bài viết theo idObject, idTypePosts và idUsers
 // http://localhost:3001/posts/add-posts/:idUsers

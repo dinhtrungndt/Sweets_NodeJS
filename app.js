@@ -4,6 +4,32 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
+
+const app = express();
+
+app.use(express.json());
+var database
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Sweets API",
+      version: "1.0.0",
+    },
+    servers: [
+      {
+        url: "https://sweets-nodejs.onrender.com/",
+      },
+    ],
+  },
+  apis: ['./routes/comments.js', './routes/friend.js']
+}
+
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-sweets', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
 require("./models/users");
 require("./models/message");
@@ -25,8 +51,6 @@ var objectRouter = require("./routes/object");
 var typepostsRouter = require("./routes/typeposts");
 var mediaRouter = require("./routes/media");
 var postsRouter = require("./routes/posts");
-
-var app = express();
 
 const cors = require("cors");
 
