@@ -1,7 +1,29 @@
+/**
+ * @swagger
+ * tags:
+ *   name: Comments
+ *   description: API endpoints for managing comments
+ */
 const express = require('express');
 const router = express.Router();
 const commentModel = require('../models/comments');
 
+/**
+ * @swagger
+ * /comments:
+ *   get:
+ *     summary: Retrieve all comments
+ *     tags: [Comments]
+ *     responses:
+ *       '200':
+ *         description: A list of comments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Comment'
+ */
 // Lấy danh sách các comment
 // http://localhost:3001/comments
 router.get('/', async (req, res) => {
@@ -9,6 +31,31 @@ router.get('/', async (req, res) => {
   res.json(data);
 });
 
+/**
+ * @swagger
+ * /comments/get-comment/{idPosts}:
+ *   get:
+ *     summary: Retrieve comments by post ID
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: idPosts
+ *         required: true
+ *         description: ID of the post
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Comments found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Comment'
+ *       '404':
+ *         description: Comments not found
+ */
 // Lấy comment theo idPosts
 // http://localhost:3001/comments/get-comment/:idPosts
 router.get("/get-comment/:idPosts", async (req, res) => {
@@ -27,6 +74,28 @@ router.get("/get-comment/:idPosts", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /comments/add:
+ *   post:
+ *     summary: Add a new comment
+ *     tags: [Comments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Comment'
+ *     responses:
+ *       '200':
+ *         description: New comment added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Comment'
+ *       '400':
+ *         description: Invalid request body
+ */
 // Thêm mới comment
 // http://localhost:3001/comments/add
 router.post('/add', async (req, res) => {
