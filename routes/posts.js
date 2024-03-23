@@ -9,7 +9,7 @@ const { ObjectId } = require('mongoose').Types;
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
 router.get('/get-all-posts', async (req, res) => {
-  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar");
+  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
   data.reverse();
   res.json(data);
 });
@@ -35,7 +35,7 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
         { idUsers: idUsers },
         { idObject: { $in: ["65b1fe1be09b1e99f9e8a235"] } } 
       ]
-    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar");
+    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
     
     data.reverse();
     res.json(data);
