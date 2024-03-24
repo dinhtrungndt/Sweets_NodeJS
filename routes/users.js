@@ -512,4 +512,52 @@ router.put("/update-avatar/:id", async function (req, res) {
   }
 });
 
+//khôi phục người dùng
+// http://localhost:3001/users/restore-user
+router.post("/restore-user", async (req, res) => {
+  try {
+    // Data cần khôi phục
+    const userData = {
+      "_id": "65a8c3e192cef0b4744bf2b9",
+      "name": "Mang Tuấn Vĩv",
+      "email": "viu10112000@gmail.com",
+      "password": "$2a$10$MJDn8dB2qAjhIN1G1XJqCukmKfkZHzX.65Up3xngVb5ECVt0SVW..",
+      "gioitinh": "Nam",
+      "ngaysinh": "16/05/2002",
+      "avatar": "https://res.cloudinary.com/dfh1x8dtw/image/upload/v1709295118/br8n5kde5ehgtaunnzer.jpg",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZpdTEwMTEyMDAwQGdtYWlsLmNvbSIsImlhdCI6MTcxMTEwMjk0NiwiZXhwIjoxNzEzNjk0OTQ2fQ.tvAnUfeeAjB0knZofMv3Hy1bPNEO4gXmYkzoOV9VrE0",
+      "friends": [
+          "6595141808f34c704e20d196"
+      ],
+      "posts": [
+          {
+              "avatar": "https://res.cloudinary.com/dwxly01ng/image/upload/v1701845121/blltwlrisbfnxitr80ur.webp",
+              "name": "Loa loa",
+              "time": "2023-12-31T12:00:00Z",
+              "content": "Nội dung bài ",
+              "image": [
+                  "https://res.cloudinary.com/dgnhucpz0/image/upload/v1697076710/xuncqrqvx5gepxbsrckn.png",
+                  "https://res.cloudinary.com/dgnhucpz0/image/upload/v1697076710/xuncqrqvx5gepxbsrckn.png"
+              ],
+              "likedBy": [
+                  "6595141808f34c704e20d196",
+                  "65a8e20bd5308fd3632aa6a2"
+              ],
+              "comments": [],
+              "_id": "65aa01fbe29d0580edf47910"
+          }
+      ],
+      "stories": [],
+      "friendRequests": [],
+      "coverImage": "https://res.cloudinary.com/dztqqxnqr/image/upload/v1704255997/p1vdyjxbnmt8btfuqoab.jpg"
+  }
+
+    const user = await User.create(userData);
+
+    res.json({ status: 1, message: "Khôi phục người dùng thành công", user });
+  } catch (err) {
+    res.json({ status: 0, message: "Lỗi khi khôi phục người dùng", error: err.message });
+  }
+});
+
 module.exports = router;
