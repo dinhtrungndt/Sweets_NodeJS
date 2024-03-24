@@ -41,6 +41,7 @@ require("./models/typeposts");
 require("./models/media");
 require("./models/posts");
 
+
 var indexRouter = require("./routes/index");
 var userRouter = require("./routes/users");
 var messageRouter = require("./routes/message");
@@ -83,6 +84,7 @@ app.use("/object", objectRouter);
 app.use("/typeposts", typepostsRouter);
 app.use("/media", mediaRouter);
 app.use("/posts", postsRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -10,6 +10,7 @@ const message = new Schema(
     content: { type: String },
     status: { type: String },
     time: { type: String },
+    idgroup: { type: String },
   },
   {
     versionKey: false,
