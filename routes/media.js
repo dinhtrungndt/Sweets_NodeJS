@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 const mediaModels = require("../models/media");
 const postsModels = require('../models/posts');
 // Lấy danh sách media
@@ -12,18 +12,14 @@ router.get("/get-media", async (req, res) => {
 });
 
 // Cấu hình Cloudinary
-cloudinary.v2.config({
-  cloud_name: "dfh1x8dtw",
-  api_key: "182242976743445",
-  api_secret: "AtujP-65GcmIXf2cZcT0iI9T5_I",
+cloudinary.config({
+  cloud_name: "dqo8whkdr",
+  api_key: "217742758864799",
+  api_secret: "WsiHN2cYF97vPkTKHbG1YoBwtTM",
   secure: true,
 });
 
-// Sử dụng Multer để xử lý upload file
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/");
-  },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
@@ -32,37 +28,50 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max file size
+    fileSize: 50 * 1024 * 1024, // 50MB max file size
+  },
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image and video files are allowed!"), false);
+    }
   },
 });
+router.post("/upload-media", upload.array("media"), async (req, res, next) => {
+  try {
+    const { files } = req;
 
-// Upload ảnh
-// http://localhost:3001/media/upload-imageStatus
-router.post(
-  "/upload-imageStatus",
-  upload.array("imageStatus", 5),
-  async (req, res, next) => {
-    try {
-      const { files } = req;
+    if (!files || files.length === 0) {
+      return res.json({ status: 0, message: "No files uploaded" });
+    }
 
-      if (!files || files.length === 0) {
-        return res.json({ status: 0, urls: [] });
-      } else {
-        const urls = [];
+    const urls = [];
 
-        for (const file of files) {
-          const result = await cloudinary.uploader.upload(file.path);
-          urls.push(result.secure_url);
+    for (const file of files) {
+      try {
+        let result;
+
+        if (file.mimetype.startsWith("image/")) {
+          result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
+        } else if (file.mimetype.startsWith("video/")) {
+          result = await cloudinary.uploader.upload(file.path, { resource_type: "video" });
         }
 
-        return res.json({ status: 1, urls });
+        if (result && result.secure_url) {
+          urls.push(result.secure_url);
+        }
+      } catch (error) {
+        console.log("Lỗi uploading file lên Cloudinary:", error);
       }
-    } catch (error) {
-      console.log("Upload image error: ", error);
-      return res.json({ status: 0, urls: [] });
     }
+
+    return res.json({ status: 1, urls });
+  } catch (error) {
+    console.log("Upload media Lỗiiiiiii: ", error);
+    return res.json({ status: 0, message: "Looix uploading files lênnn Cloudinary" });
   }
-);
+});
 
 // thêm media theo idPosts và đưa url lên cloudinary
 // http://localhost:3001/media/add-media/:idPosts
