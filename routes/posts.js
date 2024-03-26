@@ -67,43 +67,36 @@ router.get("/get-share/:idPosts", async (req, res) => {
   }
 });
 
-// Cập nhật bài viết theo idPosts
-// http://localhost:3001/posts/update-posts/:idPosts
-router.put('/update-posts/:idPosts', async (req, res) => {
-  const { idPosts } = req.params;
+// Cập nhật bài viết theo idPosts và idUsers
+// http://localhost:3001/posts/update-posts/:idPosts/:idUsers
+router.put('/update-posts/:idPosts/:idUsers', async (req, res) => {
+  const { idPosts, idUsers } = req.params;
   const { content, idObject, idTypePosts, idShare } = req.body;
 
   try {
-    const posts = await postsModels.findById(idPosts);
+    const post = await postsModels.findById(idPosts);
 
-    if (posts) {
-      if (content !== undefined) {
-        posts.content = content;
-      }
-
-      if (idObject !== undefined) {
-        posts.idObject = idObject;
-      }
-
-      if (idTypePosts !== undefined) {
-        posts.idTypePosts = idTypePosts;
-      }
-
-      if (idShare !== undefined) {
-        posts.idShare = idShare;
-      }
-
-      await posts.save();
-
-      res.json({
-        status: 'success',
-        message: 'Cập nhật bài viết thành công',
-      });
-    } else {
-      res.status(404).json({ message: 'Bài viết không tồn tại' });
+    if (!post) {
+      return res.status(404).json({ message: 'Bài viết không tồn tại' });
     }
+
+    if (post.idUsers.toString() !== idUsers) {
+      return res.status(403).json({ message: 'Bạn không có quyền chỉnh sửa bài viết này' });
+    }
+    post.content = content || post.content;
+    post.idObject = idObject || post.idObject;
+    post.idTypePosts = idTypePosts || post.idTypePosts;
+    post.idShare = idShare || post.idShare;
+
+    await post.save();
+
+    res.json({
+      status: 'success',
+      message: 'Cập nhật bài viết thành công',
+      updatedPost: post,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error 500' });
+    res.status(500).json({ message: 'Lỗi khi cập nhật bài viết', error: error.message });
   }
 });
 
@@ -131,5 +124,31 @@ router.post("/search-all-post", async (req, res) => {
   }
 });
 
-module.exports = router;
+// Cập nhập idObject
+// http://localhost:3001/posts/update-objects-posts/:idPosts/:idObject
+router.put('/update-objects-posts/:idPosts/:idObject', async (req, res) => {
+  const { idPosts, idObject } = req.params;
 
+  try {
+    const posts = await postsModels.findById(idPosts);
+
+    if (posts) {
+      posts.idObject = idObject;
+
+      await posts.save();
+
+      res.json({
+        status: 'success',
+        message: 'Cập nhật idObject của bài viết thành công',
+        postId: idPosts,
+        updatedIdObject: idObject,
+      });
+    } else {
+      res.status(404).json({ message: 'Bài viết không tồn tại' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi khi cập nhật idObject của bài viết' });
+  }
+});
+
+module.exports = router;
