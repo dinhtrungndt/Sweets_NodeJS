@@ -151,4 +151,23 @@ router.put('/update-objects-posts/:idPosts/:idObject', async (req, res) => {
   }
 });
 
+// Lấy chi tiết một bài viết theo _id
+// http://localhost:3001/posts/get-detail-post/:_id
+router.get('/get-detail-post/:_id', async (req, res) => {
+  const { _id } = req.params;
+
+  try {
+    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+
+    if (!post) {
+      return res.status(404).json({ message: 'Không tìm thấy bài viết' });
+    }
+
+    res.json({ status: 'success', post });
+  } catch (error) {
+    console.error('Error getting post detail:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy chi tiết bài viết', error: error.message });
+  }
+});
+
 module.exports = router;
