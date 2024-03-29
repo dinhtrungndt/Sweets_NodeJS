@@ -5,36 +5,14 @@ const socketIo = require("socket.io");
 const modelMessage = require("../models/message");
 
 const server = http.createServer(app);
- const io = socketIo(server);
- 
-// io.on("connection", (socket) => {
-//   socket.on("new_chat", async (data) => {
-//     try {
-//       const { avatar, name, content } = data;
-//       // lấy lại danh sách tin nhắn
-//       const newlistchat = new modelMessage({
-//         idSender,
-//         idReceiver,
-//         content,
-//         status: "sent",
-//         time,
-//         idgroup: idSender + idReceiver,
-
-//       });
-//       // ghi log khi có tin nhắn mới được gửi đến
-//       console.log(`Received message: ${newlistchat}`);
-//       const savedMessage = await newlistchat.save();
-//       // gửi lại list tin nhắn mới
-//       io.emit("new_chat", savedMessage);
-//       console.log(`Sent message: ${savedMessage}`);
-
-//     } catch (e) {
-
-//     }
-//   });
-// });
+ const io = socketIo(server,{cors: {origin: "*",}});
 
 io.on("connection", (socket) => {
+  console.log("connected");
+  socket.on('LoginByQRCode', (data) => {
+    console.log('LoginByQRCode', data);
+    io.emit('ChangeScreen', data);
+  })
   socket.on("new_message", async (data) => {
     try {
       const { idSender, idReceiver, content, time, idgroup } = data;
