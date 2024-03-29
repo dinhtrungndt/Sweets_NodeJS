@@ -180,5 +180,6 @@ router.post('/add-posts/:idUsers', upload.array('media', 5), async (req, res) =>
   }
 });
 
+// Lấy danh sách video .mp4
 
 module.exports = router;
