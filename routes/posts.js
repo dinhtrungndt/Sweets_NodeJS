@@ -170,4 +170,20 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   }
 });
 
+// Lấy danh sách bài viết dựa theo idUsers
+// http://localhost:3001/posts/get-detail-users/:idUsers
+router.get('/get-detail-users/:idUsers', async (req, res) => {
+  try {
+    const idUsers = req.params.idUsers;
+
+    // Tìm các bài viết của người dùng có id là idUsers
+    const userPosts = await postsModels.find({ idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+    
+    res.json({ status: 'success', userPosts });
+  } catch (error) {
+    console.error('Error getting user posts:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách bài viết của người dùng', error: error.message });
+  }
+});
+
 module.exports = router;
