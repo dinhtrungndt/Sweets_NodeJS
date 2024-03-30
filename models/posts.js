@@ -4,7 +4,7 @@ const ObjectId = Schema.ObjectId;
 
 const posts = new Schema(
   {
-    _id: { type: Number, required: true, unique: true },
+    _id: { type: Number, required: true },
     content: { type: String, required: true },
     createAt: { type: Date, default: Date.now },
     idObject: { type: ObjectId, ref: "object" },

@@ -121,9 +121,9 @@ router.post('/add', async (req, res) => {
 router.post('/add/:idUsers/:idPosts/:idParent', async (req, res) => {
   try {
     const { idUsers, idPosts, idParent } = req.params;
-    const { content } = req.body;
+    const { content , image } = req.body;
 
-    const comment = new commentModel({ idUsers, idPosts, idParent, content });
+    const comment = new commentModel({ idUsers, idPosts, idParent, content , image });
     await comment.save();
 
     res.json({

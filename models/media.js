@@ -7,7 +7,7 @@ const media = new Schema(
     id: { type: ObjectId },
     url: [{ type: String }],
     type: { type: String },
-    idPosts: {  type: Number, required: true, unique: true , ref: "posts" },
+    idPosts: {  type: Number, required: true , ref: "posts" },
   },
   {
     versionKey: false,
