@@ -45,9 +45,9 @@ router.post("/add-loginQRCode", async (req, res) => {
 
 
 // Cập nhật loginQRCode dựa trên deviceid
-// PUT http://localhost:3001/loginQRCode/update-loginQRCode/:deviceid
+// PUT http://localhost:3001/loginQRCode/update-loginQRCode/
 router.put("/update-loginQRCode", async (req, res) => {
-  const { iduser,deviceid } = req.body;
+  const { iduser, deviceid } = req.body;
   
   try {
     const loginQRCode = await loginQRCodeModel.findOne({ deviceid });
@@ -55,11 +55,12 @@ router.put("/update-loginQRCode", async (req, res) => {
 
     loginQRCode.iduser = iduser;
     await loginQRCode.save();
-    res.json(loginQRCode);
+    res.json({ status: true, loginQRCode });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Xóa loginQRCode
 // DELETE http://localhost:3001/loginQRCode/delete-loginQRCode/:id

@@ -8,15 +8,19 @@ const io = socketIo(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
   console.log("connected");
+  socket.on('UpdateDevice', (data) => {
+    console.log('UpdateDevice', data);
+    io.emit('UpdateDevice2', data);
+  });
   socket.on("AddDevice", (data) => {
     console.log("AddDevice", data);
     // const responseAddDevice = await CreateDevice(data);
     io.emit("AddDevice2", data);
   });
-  socket.on("LoginByQRCode", (data) => {
-    console.log("LoginByQRCode", data);
-    io.emit("ChangeScreen", data);
-  });
+  // socket.on("LoginByQRCode", (data) => {
+  //   console.log("LoginByQRCode", data);
+  //   io.emit("ChangeScreen", data);
+  // });
   socket.on("new_message", async (data) => {
     try {
       const { idSender, idReceiver, content, time, idgroup } = data;
