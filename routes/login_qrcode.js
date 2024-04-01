@@ -17,15 +17,23 @@ router.get("/get-loginQRCode", async (req, res) => {
 // POST http://localhost:3001/loginQRCode/add-loginQRCode
 router.post("/add-loginQRCode", async (req, res) => {
   let { iduser, deviceid } = req.body;
-  
-  // Kiểm tra nếu iduser hoặc deviceid không được gửi, thì gán giá trị null
-  if (!iduser) iduser = null;
-  if (!deviceid) deviceid = null;
-  
-  try {
-    const checkLoginQRCode = await loginQRCodeModel.findOne({ iduser });
-    if (checkLoginQRCode) return res.json({ status: 0, message: "Mã QR đã tồn tại" });
 
+  // Thiết lập giá trị mặc định cho iduser là null nếu không được gửi
+  iduser = iduser || null;
+
+  // Kiểm tra nếu deviceid không được gửi, trả về lỗi
+  if (!deviceid) {
+    return res.status(400).json({ status: 0, message: "Thiếu thông tin deviceid" });
+  }
+
+  try {
+    // Kiểm tra xem có mã QR nào sử dụng deviceid này không
+    const checkLoginQRCode = await loginQRCodeModel.findOne({ deviceid });
+    if (checkLoginQRCode) {
+      return res.json({ status: 0, message: "Mã QR đã tồn tại" });
+    }
+
+    // Tạo mới mã QR với iduser và deviceid
     const loginQRCode = new loginQRCodeModel({ iduser, deviceid });
     await loginQRCode.save();
     res.json(loginQRCode);
@@ -33,6 +41,8 @@ router.post("/add-loginQRCode", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 // Cập nhật loginQRCode dựa trên deviceid
 // PUT http://localhost:3001/loginQRCode/update-loginQRCode/:deviceid

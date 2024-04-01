@@ -3,16 +3,20 @@ const debug = require("debug")("api-sweets:server");
 const http = require("http");
 const socketIo = require("socket.io");
 const modelMessage = require("../models/message");
-
 const server = http.createServer(app);
- const io = socketIo(server,{cors: {origin: "*",}});
+const io = socketIo(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
   console.log("connected");
-  socket.on('LoginByQRCode', (data) => {
-    console.log('LoginByQRCode', data);
-    io.emit('ChangeScreen', data);
-  })
+  socket.on("AddDevice", (data) => {
+    console.log("AddDevice", data);
+    // const responseAddDevice = await CreateDevice(data);
+    io.emit("AddDevice2", data);
+  });
+  socket.on("LoginByQRCode", (data) => {
+    console.log("LoginByQRCode", data);
+    io.emit("ChangeScreen", data);
+  });
   socket.on("new_message", async (data) => {
     try {
       const { idSender, idReceiver, content, time, idgroup } = data;
@@ -41,6 +45,5 @@ io.on("connection", (socket) => {
     }
   });
 });
-
 
 module.exports = server;

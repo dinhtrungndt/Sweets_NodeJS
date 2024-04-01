@@ -1,5 +1,5 @@
 const axios = require('axios');
-const url = 'http://192.168.1.33:3001/';
+const url = 'http://192.168.1.73:3001/';
 export const CreateDevice = async (deviceID) => {
   try {
     const response = await axios.post(url+"loginQRCode/add-loginQRCode", deviceID);
