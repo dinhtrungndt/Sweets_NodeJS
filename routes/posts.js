@@ -50,7 +50,10 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
 router.post('/add-posts/:idUsers', async (req, res) => {
   const {_id, content, idObject, idTypePosts, idShare } = req.body;
   const { idUsers } = req.params;
-  const posts = new postsModels({ _id,content, idObject, idTypePosts, idShare, idUsers });
+
+  const normalizedContent = content || '';
+
+  const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers });
   await posts.save();
   res.json(posts);
 });
