@@ -8,18 +8,17 @@ const io = socketIo(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
   console.log("connected");
-  socket.on('UpdateDevice', (data) => {
-    console.log('UpdateDevice', data);
-    io.emit('UpdateDevice2', data);
+  socket.on('send_device_iduser', (data) => {
+    console.log('send_device_iduser', data);
+    io.emit('send_device_iduser2', data);
   });
-  socket.on("AddDevice", (data) => {
-    console.log("AddDevice", data);
-    // const responseAddDevice = await CreateDevice(data);
-    io.emit("AddDevice2", data);
-  });
-  // socket.on("LoginByQRCode", (data) => {
-  //   console.log("LoginByQRCode", data);
-  //   io.emit("ChangeScreen", data);
+  // socket.on('UpdateDevice', (data) => {
+  //   console.log('UpdateDevice', data);
+  //   io.emit('UpdateDevice2', data);
+  // });
+  // socket.on("AddDevice", (data) => {
+  //   console.log("AddDevice", data);
+  //   io.emit("AddDevice2", data);
   // });
   socket.on("new_message", async (data) => {
     try {

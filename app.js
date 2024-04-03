@@ -8,6 +8,13 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
 const app = express();
+const cors = require("cors");
+
+// app.use(cors());
+
+app.use(cors({
+  origin: '*'
+}));
 
 app.use(express.json());
 var database
@@ -56,9 +63,7 @@ var postsRouter = require("./routes/posts");
 var loginQRCodeRouter = require("./routes/login_qrcode");
 
 
-const cors = require("cors");
 
-app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
