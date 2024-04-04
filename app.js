@@ -48,6 +48,7 @@ require("./models/typeposts");
 require("./models/media");
 require("./models/posts");
 require("./models/login_qrcode");
+require("./models/livestream");
 
 
 var indexRouter = require("./routes/index");
@@ -61,7 +62,7 @@ var typepostsRouter = require("./routes/typeposts");
 var mediaRouter = require("./routes/media");
 var postsRouter = require("./routes/posts");
 var loginQRCodeRouter = require("./routes/login_qrcode");
-
+var livestreamRouter = require("./routes/livestream");
 
 
 
@@ -93,6 +94,7 @@ app.use("/typeposts", typepostsRouter);
 app.use("/media", mediaRouter);
 app.use("/posts", postsRouter);
 app.use("/loginQRCode", loginQRCodeRouter);
+app.use("/livestream", livestreamRouter);
 
 
 // catch 404 and forward to error handler
