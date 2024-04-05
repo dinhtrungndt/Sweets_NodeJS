@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const commentModel = require('../models/comments');
+const axios = require('axios');
 
 /**
  * @swagger
@@ -64,9 +65,11 @@ router.get("/get-comment/:idPosts", async (req, res) => {
     const data = await commentModel
       .find({ idPosts })
       .populate("idUsers", "name avatar")
-      .populate("idParent");
+      .populate("idParent")
+      .populate("parentUserName")
     res.json(data);
   } catch (error) {
+    console.error(error);
     res.json({
       status: "error",
       message: "Lấy comment thất bại",
@@ -121,9 +124,11 @@ router.post('/add', async (req, res) => {
 router.post('/add/:idUsers/:idPosts/:idParent', async (req, res) => {
   try {
     const { idUsers, idPosts, idParent } = req.params;
-    const { content , image } = req.body;
+    const { content , image, parentUserName } = req.body;
 
-    const comment = new commentModel({ idUsers, idPosts, idParent, content , image });
+    const parentUserNameC = parentUserName || '';
+
+    const comment = new commentModel({ idUsers, idPosts, idParent, content , image, parentUserName: parentUserNameC });
     await comment.save();
 
     res.json({
@@ -158,6 +163,44 @@ router.post('/add/:idUsers/:idPosts', async (req, res) => {
     res.json({
         status: 'error',
         message: 'Thêm mới comment thất bại',
+    });
+  }
+});
+
+// Sắp xếp comments dự theo danh sách bạn bè theo idUsers lên đầu còn chưa kết bạn nằm dưới
+// http://localhost:3001/comments/arrange-comment-friend/:idUser/:idPosts
+router.get('/arrange-comment-friend/:idUser/:idPosts', async (req, res) => {
+  try {
+    const { idUser, idPosts } = req.params;
+
+    // Lấy danh sách bạn bè của người dùng từ routes friend
+    const response = await axios.get(`https://sweets-nodejs.onrender.com/friend/friends/${idUser}`);
+    const friendsList = response.data.friendsList;
+
+    // Lấy tất cả các comment
+    const allComments = await commentModel.find({ idPosts }).populate("idUsers", "name avatar");
+
+    // Sắp xếp các comment dựa trên danh sách bạn bè
+    const sortedComments = [];
+    const otherComments = [];
+    
+    allComments.forEach(comment => {
+      const commentUserId = comment.idUsers._id.toString();
+      if (friendsList.includes(commentUserId)) {
+        sortedComments.push(comment);
+      } else {
+        otherComments.push(comment);
+      }
+    });
+
+    // Gửi danh sách comment đã sắp xếp cho client
+    const arrangedComments = sortedComments.concat(otherComments);
+    res.json(arrangedComments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Lỗi khi sắp xếp comment",
     });
   }
 });
