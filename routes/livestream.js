@@ -51,9 +51,19 @@ router.get("/getAllLivestreams", async (req, res) => {
 // Thêm mới livestream
 router.post("/addLivestream", async (req, res) => {
     try {
-        const { liveid, username } = req.body;
+        const { liveid, username, avatar } = req.body;
 
-        const newLivestream = new livestreamModel({ liveid, username });
+        // Kiểm tra xem liveid đã tồn tại hay chưa
+        const existingLivestream = await livestreamModel.findOne({ liveid });
+
+        if (existingLivestream) {
+            return res.status(400).json({
+                status: "error",
+                message: "Liveid đã tồn tại",
+            });
+        }
+
+        const newLivestream = new livestreamModel({ liveid, username, avatar });
         await newLivestream.save();
 
         res.json({
@@ -70,6 +80,8 @@ router.post("/addLivestream", async (req, res) => {
         });
     }
 });
+
+
 
 // Xóa livestream dựa vào liveid
 router.delete("/deleteLivestream/:liveid", async (req, res) => {
