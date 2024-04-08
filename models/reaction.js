@@ -6,7 +6,8 @@ const reaction = new Schema(
   {
     id: { type: ObjectId },
     idUsers: { type: ObjectId, ref: "users" },
-    idPosts: { type: Number, required: true , ref: "posts" },
+    idPosts: { type: Number , ref: "posts" },
+    idComments: { type: ObjectId, ref: "comments" },
     type: { type: String },
   },
   {

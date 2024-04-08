@@ -180,6 +180,17 @@ router.post('/add-posts/:idUsers', upload.array('media', 5), async (req, res) =>
   }
 });
 
-// Lấy danh sách video .mp4
+// Xóa ảnh cloudinary vừa được tải lên
+// http://localhost:3001/media/delete-media-cloudinary
+router.post("/delete-media-cloudinary", async (req, res) => {
+  const { url } = req.body;
+  try {
+    const result = await cloudinary.uploader.destroy(url)
+    res.json(result)
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 0, message: "Lỗi" });
+  }
+});
 
 module.exports = router;
