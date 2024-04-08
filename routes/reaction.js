@@ -138,8 +138,59 @@ router.post("/add/:idUsers/:idPosts", async (req, res) => {
   }
 });
 
-// lấy tất cả danh sách bài viết của người dùng
-// http://localhost:3001/reaction/get-reaction/:postId/:userId
+// Thêm mới reaction dựa vào idUsers và idComments
+// http://localhost:3001/reaction/add-comments/:idUsers/:idComments
+router.post("/add-comments/:idUsers/:idComments", async (req, res) => {
+  try {
+    const { idUsers, idComments } = req.params;
+    const { type } = req.body;
 
+    const nReaction = await reactionModel.findOne({ idUsers, idComments });
+
+    if (nReaction) {
+      if (nReaction.type === type) {
+        await reactionModel.findByIdAndDelete(nReaction._id);
+      } else {
+        await reactionModel.findByIdAndUpdate(nReaction._id, { type });
+      }
+      return res.json({
+        status: 1,
+        message: "Cập nhật reaction thành công",
+        idComments,
+        nReaction,
+        type
+      });
+    } else {
+      const reaction = new reactionModel({ idUsers, idComments, type });
+      await reaction.save();
+      return res.json({
+        status: 1,
+        message: "Thêm mới reaction thành công",
+        idComments,
+        nReaction,
+        type
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 0,
+      message: "Thêm mới reaction thất bại",
+      error: error,
+    });
+  }
+});
+
+
+// Lấy danh sách reaction theo idPosts và idComments
+// http://localhost:3001/reaction/get-idComments/:idComments
+router.get("/get-idComments/:idComments", async (req, res) => {
+  try {
+    const { idComments } = req.params;
+    const data = await reactionModel.find({ idComments }).populate("idUsers", "name avatar");
+    res.json(data);
+  } catch (error) {
+    res.json(error);
+  }
+});
 
 module.exports = router;
