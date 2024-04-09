@@ -10,6 +10,7 @@ var multer = require("multer");
 // // thêm ảnh
 const cloudinary = require("../configs/cloundinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const SearchHistory = require("../models/SearchHistory");
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   folder: "bida",
@@ -539,6 +540,41 @@ router.post("/restore-user", async (req, res) => {
     res.json({ status: 1, message: "Khôi phục người dùng thành công", user });
   } catch (err) {
     res.json({ status: 0, message: "Lỗi khi khôi phục người dùng", error: err.message });
+  }
+});
+
+// tìm kiếm user
+// http://localhost:3001/users/search-user/:id
+router.post("/search-user/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  try {
+    const users = await User.find(
+      { name: { $regex: new RegExp(name, "i") }, _id: { $ne: id } },
+      { name: 1, avatar: 1, date: 1 }
+    );
+
+    const searchHistory = new SearchHistory({ userId: id, searchText: name });
+    await searchHistory.save();
+
+    if (users.length > 0) {
+      res.json({ status: 1, message: "Tìm kiếm thành công", users });
+    } else {
+      res.json({ status: 0, message: "Không tìm thấy" });
+    }
+  } catch (err) {
+    res.json({ status: 0, message: "Lỗi khi tìm kiếm", error: err.message });
+  }
+});
+
+// lấy lịch sử tìm kiếm
+router.get("/search-history/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const searchHistory = await SearchHistory.find({ userId: userId }).sort({ createdAt: -1 });
+    res.json({ status: 1, message: "Danh sách lịch sử tìm kiếm", searchHistory });
+  } catch (err) {
+    res.json({ status: 0, message: "Lỗi khi lấy lịch sử tìm kiếm", error: err.message });
   }
 });
 
