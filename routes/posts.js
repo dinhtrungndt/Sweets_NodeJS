@@ -10,7 +10,7 @@ const axios = require('axios');
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
 router.get('/get-all-posts', async (req, res) => {
-  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name");
+  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage");
   data.reverse();
   res.json(data);
 });
@@ -36,7 +36,7 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
         { idUsers: idUsers },
         { idObject: { $in: ["65b1fe1be09b1e99f9e8a235"] } } 
       ]
-    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name");
+    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage");
     
     data.reverse();
     res.json(data);
@@ -172,7 +172,7 @@ router.get('/get-detail-post/:_id', async (req, res) => {
     const responseReaction = await axios.get(`http://localhost:3001/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
     
-    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar").populate("taggedFriends", "name");
+    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage");
 
     // Construct the response object with desired format
     const formattedResponse = {
@@ -247,7 +247,7 @@ router.get('/get-birthday-posts/:idUsers', async (req, res) => {
   try {
     const idUsers = req.params.idUsers;
 
-    const birthdayPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar").populate("taggedFriends", "name");
+    const birthdayPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage");
 
     res.json({ status: 'success', birthdayPosts });
   } catch (error) {
