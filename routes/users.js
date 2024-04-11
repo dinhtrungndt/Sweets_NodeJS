@@ -49,21 +49,22 @@ router.get("/get-user/:id", async (req, res) => {
 
 
 const secretKey = "jaktpyotjpcpefmo";
-// http://localhost:3001/user/forgot-password
+const otpSecret = "yourotpsecret"; // Thay đổi secret cho mã OTP
+
+// Lưu danh sách mã OTP và email tương ứng
+const otpStore = {};
+
 router.post("/forgot-password", (req, res) => {
   const { email } = req.body;
   // Kiểm tra xem email có tồn tại trong hệ thống hay không
-  // Nếu có, tạo mã JWT và gửi email
-  const payload = {
-    // nhập email của người dùng vào đây
-    email: email,
-  };
+  // Nếu có, tạo mã OTP và gửi email
 
-  // Tạo mã JWT với thời gian sống (expiresIn) là ví dụ 1 giờ
-  const token = jwt.sign(payload, secretKey, { expiresIn: "5m" });
+  const otp = generateOTP(); // Tạo mã OTP
 
-  // Gửi email với mã JWT
+  // Lưu mã OTP và email vào cơ sở dữ liệu tạm thời
+  otpStore[email] = otp;
 
+  // Gửi email với mã OTP
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -76,7 +77,7 @@ router.post("/forgot-password", (req, res) => {
     from: "nguyenhuudung312337@gmail.com",
     to: email,
     subject: "Khôi phục mật khẩu",
-    text: `Link khôi phục mật khẩu: http://localhost:3001/reset-password/${token}`,
+    text: `Mã OTP của bạn là: ${otp}`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -85,31 +86,65 @@ router.post("/forgot-password", (req, res) => {
       res.status(500).json({ status: 0, message: "Không thể gửi về mail này" });
     } else {
       console.log("Email sent: " + info.response);
-      res
-        .status(200)
-        .json({ status: 1, message: "Gửi mã về mail thành công" + token });
+      res.status(200).json({ status: 1, message: "Gửi mã OTP về mail thành công" });
     }
   });
 });
 
-// Endpoint để xác minh mã JWT khi người dùng nhấn vào liên kết trong email3001
-router.post("/reset-password/:token", (req, res) => {
-  const { token } = req.params;
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      console.error(err);
-      return res
-        .status(401)
-        .json({ status: 0, message: "Invalid or expired token" });
-    }
-    // Token hợp lệ, có thể thực hiện các bước khôi phục mật khẩu tại đây
-    // Ví dụ: trả về trang đổi mật khẩu
+router.post("/check-otp", async (req, res) => {
+  const { email, otp } = req.body;
 
-    res
-      .status(200)
-      .json({ status: 1, message: "Token verified successfully", decoded });
-  });
+  // Kiểm tra OTP có khớp với email không
+  if (otpStore[email] === otp) {
+    res.status(200).json({ success: true, message: "Mã OTP hợp lệ" });
+  } else {
+    res.status(400).json({ success: false, message: "Mã OTP không hợp lệ" });
+  }
 });
+
+router.post("/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Kiểm tra xem OTP có khớp với email không
+  if (otpStore[email] === otp) {
+    try {
+      // Tìm người dùng trong cơ sở dữ liệu bằng email
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ success: false, message: "Không có thông tin người dùng" });
+      }
+
+      // Mã hóa mật khẩu mới trước khi cập nhật
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Cập nhật mật khẩu mới trong cơ sở dữ liệu
+      user.password = hashedPassword;
+      await user.save();
+
+      // Xóa OTP khỏi cơ sở dữ liệu tạm thời
+      delete otpStore[email];
+
+      res.status(200).json({ success: true, message: "Đổi mật khẩu thành công" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
+    }
+  } else {
+    res.status(400).json({ success: false, message: "Mã OTP không hợp lệ" });
+  }
+});
+
+function generateOTP() {
+  // Tạo một mã OTP ngẫu nhiên gồm 6 ký tự
+  const digits = '0123456789';
+  let OTP = '';
+  for (let i = 0; i < 6; i++) {
+    OTP += digits[Math.floor(Math.random() * 10)];
+  }
+  return OTP;
+}
+
 // cập nhật token vào user
 // http://localhost:5000/user/update-token
 // router.post('/update-token', async (req, res) => {
