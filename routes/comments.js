@@ -207,6 +207,32 @@ router.get('/arrange-comment-friend/:idUser/:idPosts', async (req, res) => {
   }
 });
 
+// Xóa comment theo idUsers và idComments
+// http://localhost:3001/comments/delete/:idUsers/:idComments
+router.delete('/delete/:idUsers/:idComments', async (req, res) => {
+  try {
+    const { idUsers, idComments } = req.params;
+    const comment =
+      await commentModel.findOne({ _id: idComments, idUsers: idUsers });
+    if (!comment) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy comment',
+      });
+    }
+    await commentModel.findByIdAndDelete(idComments);
+    res.json({
+      status: 'success',
+      message: 'Xóa comment thành công',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Lỗi khi xóa comment',
+    });
+  }
+})
+
 // Xóa comment
 // http://localhost:3001/comments/delete/:id
 router.delete('/delete/:id', async (req, res) => {
