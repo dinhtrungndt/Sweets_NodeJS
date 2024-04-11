@@ -5,11 +5,12 @@ const cloudinary = require("cloudinary");
 const postsModels = require('../models/posts');
 const friendModels = require('../models/friend');
 const { ObjectId } = require('mongoose').Types;
+const axios = require('axios');
 
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
 router.get('/get-all-posts', async (req, res) => {
-  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name");
   data.reverse();
   res.json(data);
 });
@@ -35,7 +36,7 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
         { idUsers: idUsers },
         { idObject: { $in: ["65b1fe1be09b1e99f9e8a235"] } } 
       ]
-    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name");
     
     data.reverse();
     res.json(data);
@@ -159,18 +160,46 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   const { _id } = req.params;
 
   try {
-    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+    // Lấy danh sách comment theo từ route comments
+    const response = await axios.get(`http://localhost:3001/comments/get-comment/${_id}`);
+    const commentsList = response.data;
+    
+    // Lấy danh sách media theo từ route media
+    const responseMedia = await axios.get(`http://localhost:3001/media/get-media/${_id}`);
+    const mediaList = responseMedia.data;
+    
+    // Lấy danh sách reaction theo từ route reaction
+    const responseReaction = await axios.get(`http://localhost:3001/reaction/getPostsId/${_id}`);  
+    const reactionList = responseReaction.data;
+    
+    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar").populate("taggedFriends", "name");
 
-    if (!post) {
-      return res.status(404).json({ message: 'Không tìm thấy bài viết' });
-    }
+    // Construct the response object with desired format
+    const formattedResponse = {
+      _id: post._id,
+      content: post.content,
+      idObject: post.idObject,
+      idTypePosts: post.idTypePosts,
+      idShare: post.idShare,
+      idUsers: {
+        _id: post.idUsers._id,
+        name: post.idUsers.name,
+        avatar: post.idUsers.avatar,
+      },
+      taggedFriends: post.taggedFriends,
+      createAt: post.createAt,
+      comment: commentsList,
+      media: mediaList,
+      reaction: reactionList
+    };
 
-    res.json({ status: 'success', post });
+    res.json(formattedResponse);
   } catch (error) {
     console.error('Error getting post detail:', error);
     res.status(500).json({ message: 'Lỗi khi lấy chi tiết bài viết', error: error.message });
   }
 });
+
 
 // Lấy danh sách bài viết dựa theo idUsers
 // http://localhost:3001/posts/get-detail-users/:idUsers
@@ -179,12 +208,51 @@ router.get('/get-detail-users/:idUsers', async (req, res) => {
     const idUsers = req.params.idUsers;
 
     // Tìm các bài viết của người dùng có id là idUsers
-    const userPosts = await postsModels.find({ idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers");
+    const userPosts = await postsModels.find({ idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends");;
     
     res.json({ status: 'success', userPosts });
   } catch (error) {
     console.error('Error getting user posts:', error);
     res.status(500).json({ message: 'Lỗi khi lấy danh sách bài viết của người dùng', error: error.message });
+  }
+});
+
+// Thêm bài viết chúc mừng sinh nhật
+// http://localhost:3001/posts/add-birthday-post/:idUsers
+router.post('/add-birthday-post/:idUsers', async (req, res) => {
+  try {
+    const {_id, content, idUsers, taggedFriends } = req.body;
+
+    const newPost = new postsModels({
+      _id: _id,
+      content: content,
+      idObject: '65b1fe6dab07bc8ddd7de469', 
+      idTypePosts: "65b20030261511b0721a9913", 
+      idUsers: idUsers,
+      taggedFriends: taggedFriends 
+    })
+
+    const savedPost = await newPost.save();
+
+    res.json({ status: 'success', message: 'Thêm bài viết chúc mừng sinh nhật thành công', post: savedPost });
+  } catch (error) {
+    console.error('Error adding birthday post:', error);
+    res.status(500).json({ message: 'Lỗi khi thêm bài viết chúc mừng sinh nhật', error: error.message });
+  }
+});
+
+// Lấy danh sách bài viết chúc mừng sinh nhật
+// http://localhost:3001/posts/get-birthday-posts/:idUsers
+router.get('/get-birthday-posts/:idUsers', async (req, res) => {
+  try {
+    const idUsers = req.params.idUsers;
+
+    const birthdayPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar").populate("taggedFriends", "name");
+
+    res.json({ status: 'success', birthdayPosts });
+  } catch (error) {
+    console.error('Error getting birthday posts:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách bài viết chúc mừng sinh nhật', error: error.message });
   }
 });
 

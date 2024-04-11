@@ -180,13 +180,24 @@ router.post("/add-comments/:idUsers/:idComments", async (req, res) => {
   }
 });
 
-
 // Lấy danh sách reaction theo idPosts và idComments
 // http://localhost:3001/reaction/get-idComments/:idComments
 router.get("/get-idComments/:idComments", async (req, res) => {
   try {
     const { idComments } = req.params;
     const data = await reactionModel.find({ idComments }).populate("idUsers", "name avatar");
+    res.json(data);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+// Lấy danh sách reaction theo idUsers và idPosts
+// http://localhost:3001/reaction/get-idUsers/:idUsers/:idPosts
+router.get("/get-idUsers/:idUsers/:idPosts", async (req, res) => {
+  try {
+    const { idUsers, idPosts } = req.params;
+    const data = await reactionModel.find({ idUsers, idPosts }).populate("idUsers", "name avatar");
     res.json(data);
   } catch (error) {
     res.json(error);
