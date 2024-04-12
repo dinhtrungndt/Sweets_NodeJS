@@ -49,12 +49,12 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
 // thêm bài viết theo idObject, idTypePosts và idUsers
 // http://localhost:3001/posts/add-posts/:idUsers
 router.post('/add-posts/:idUsers', async (req, res) => {
-  const {_id, content, idObject, idTypePosts, idShare } = req.body;
+  const {_id, content, idObject, idTypePosts, idShare, taggedFriends } = req.body;
   const { idUsers } = req.params;
 
   const normalizedContent = content || '';
 
-  const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers });
+  const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers, taggedFriends });
   await posts.save();
   res.json(posts);
 });
@@ -162,15 +162,15 @@ router.get('/get-detail-post/:_id', async (req, res) => {
 
   try {
     // Lấy danh sách comment theo từ route comments
-    const response = await axios.get(`http://localhost:3001/comments/get-comment/${_id}`);
+    const response = await axios.get(`https://sweets-nodejs.onrender.com/comments/get-comment/${_id}`);
     const commentsList = response.data;
     
     // Lấy danh sách media theo từ route media
-    const responseMedia = await axios.get(`http://localhost:3001/media/get-media/${_id}`);
+    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
     const mediaList = responseMedia.data;
     
     // Lấy danh sách reaction theo từ route reaction
-    const responseReaction = await axios.get(`http://localhost:3001/reaction/getPostsId/${_id}`);  
+    const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
     
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage");

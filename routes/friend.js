@@ -254,35 +254,40 @@ router.get("/friend-requests-sent/:idFriendSender", async (req, res) => {
 
 // Lấy danh sách bạn bè theo idUser
 // http://localhost:3001/friend/friends/:idUser
+const axios = require('axios');
+
 router.get("/friends/:idUser", async (req, res) => {
   try {
     const idUser = req.params.idUser;
 
-    // Tìm tất cả bạn bè của người dùng có idUser
     const friendsList = await Friend.find({
       $or: [{ idFriendSender: idUser, status: true }, { idFriendReceiver: idUser, status: true }],
     });
 
-    // Lọc lại chỉ còn danh sách id của bạn bè
-    const filteredFriendsList = friendsList.map(friend => {
-      return friend.idFriendSender == idUser ? friend.idFriendReceiver : friend.idFriendSender;
-    });
+    const detailedFriendsList = await Promise.all(friendsList.map(async (friend) => {
+      const friendId = friend.idFriendSender == idUser ? friend.idFriendReceiver : friend.idFriendSender;
+      
+      const response = await axios.get(`https://sweets-nodejs.onrender.com/users/get-user/${friendId}`);
+      const friendData = response.data.user;
 
-    // Trả về danh sách id của bạn bè
-    res
-      .status(200)
-      .json({ success: true, friendsList: filteredFriendsList });
+      return {
+        id: friendId,
+        name: friendData.name,
+        avatar: friendData.avatar,
+        coverImage: friendData.coverImage
+      };
+    }));
+
+    res.status(200).json({ success: true, friendsList: detailedFriendsList });
   } catch (error) {
     console.error(error);
-    // Trả về lỗi nếu có vấn đề khi lấy danh sách bạn bè
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Lỗi khi lấy danh sách bạn bè",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi lấy danh sách bạn bè",
+    });
   }
 });
+
 
 
 
