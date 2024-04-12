@@ -10,7 +10,7 @@ const axios = require('axios');
 // Lấy danh sách bài viết
 // http://localhost:3001/posts/get-all-posts
 router.get('/get-all-posts', async (req, res) => {
-  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage");
+  var data = await postsModels.find().populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage").populate("location")
   data.reverse();
   res.json(data);
 });
@@ -36,7 +36,7 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
         { idUsers: idUsers },
         { idObject: { $in: ["65b1fe1be09b1e99f9e8a235"] } } 
       ]
-    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage");
+    }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage").populate("location");
     
     data.reverse();
     res.json(data);
@@ -49,12 +49,12 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
 // thêm bài viết theo idObject, idTypePosts và idUsers
 // http://localhost:3001/posts/add-posts/:idUsers
 router.post('/add-posts/:idUsers', async (req, res) => {
-  const {_id, content, idObject, idTypePosts, idShare, taggedFriends } = req.body;
+  const {_id, content, idObject, idTypePosts, idShare, taggedFriends, location } = req.body;
   const { idUsers } = req.params;
 
   const normalizedContent = content || '';
 
-  const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers, taggedFriends });
+  const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers, taggedFriends, location });
   await posts.save();
   res.json(posts);
 });
@@ -173,7 +173,7 @@ router.get('/get-detail-post/:_id', async (req, res) => {
     const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
     
-    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage");
+    const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
     // Construct the response object with desired format
     const formattedResponse = {
@@ -248,12 +248,52 @@ router.get('/get-birthday-posts/:idUsers', async (req, res) => {
   try {
     const idUsers = req.params.idUsers;
 
-    const birthdayPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage");
+    const birthdayPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', idUsers }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
     res.json({ status: 'success', birthdayPosts });
   } catch (error) {
     console.error('Error getting birthday posts:', error);
     res.status(500).json({ message: 'Lỗi khi lấy danh sách bài viết chúc mừng sinh nhật', error: error.message });
+  }
+});
+
+// Thêm bài viết location
+// http://localhost:3001/posts/add-location-post/:_id
+router.post('/add-location-post/:_id', async (req, res) => {
+  try {
+    const _id = req.params._id;
+    const { content, location } = req.body;
+
+    const post = await postsModels.findById(_id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Bài viết không tồn tại' });
+    }
+
+    post.content = content || post.content;
+    post.location = location;
+    await post.save();
+
+    res.json({ status: 'success', message: 'Thêm địa điểm cho bài viết thành công', postId: _id, location: location });
+  } catch (error) {
+    console.error('Error adding location to post:', error);
+    res.status(500).json({ message: 'Lỗi khi thêm địa điểm cho bài viết', error: error.message });
+  }
+});
+
+
+// Lấy danh sách bài viết location
+// http://localhost:3001/posts/get-location-posts/:_id
+router.get('/get-location-posts/:_id', async (req, res) => {
+  try {
+    const _id = req.params._id;
+
+    const locationPosts = await postsModels.find({ idObject: '65b1fe6dab07bc8ddd7de469', _id }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("location");
+
+    res.json({ status: 'success', locationPosts });
+  } catch (error) {
+    console.error('Error getting location posts:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách bài viết location', error: error.message });
   }
 });
 

@@ -7,7 +7,7 @@ const friend = new Schema(
     id: { type: ObjectId },
     idFriendSender: { type: ObjectId, ref: "users" },
     idFriendReceiver: { type: ObjectId, ref: "users" },
-    time: { type: String },
+    time: { type: Date, default: Date.now },
     status: { type: String },
   },
   {

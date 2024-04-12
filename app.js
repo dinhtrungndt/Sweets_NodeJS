@@ -50,6 +50,7 @@ require("./models/posts");
 require("./models/login_qrcode");
 require("./models/livestream");
 require("./models/colors");
+require("./models/location");
 
 
 var indexRouter = require("./routes/index");
@@ -65,6 +66,7 @@ var postsRouter = require("./routes/posts");
 var loginQRCodeRouter = require("./routes/login_qrcode");
 var livestreamRouter = require("./routes/livestream");
 var colorRouter = require("./routes/colors");
+var locationRouter = require("./routes/location");
 
 
 
@@ -98,6 +100,7 @@ app.use("/posts", postsRouter);
 app.use("/loginQRCode", loginQRCodeRouter);
 app.use("/livestream", livestreamRouter);
 app.use("/colors", colorRouter);
+app.use("/location", locationRouter);
 
 
 // catch 404 and forward to error handler

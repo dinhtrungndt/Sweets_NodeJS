@@ -11,7 +11,8 @@ const posts = new Schema(
     idTypePosts: { type: ObjectId, ref: "typePosts" },
     idShare: { type: ObjectId, ref: "posts", default: null },
     idUsers: { type: ObjectId, ref: "users" },
-    taggedFriends: { type: ObjectId, ref: "users", default: null }
+    taggedFriends: { type: ObjectId, ref: "users", default: null },
+    location: {type: String, default: null}
   },
   {
     versionKey: false,
