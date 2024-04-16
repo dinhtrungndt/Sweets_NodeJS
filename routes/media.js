@@ -193,4 +193,17 @@ router.post("/delete-media-cloudinary", async (req, res) => {
   }
 });
 
+// Xóa media theo bài viết
+// http://localhost:3001/media/delete-media/:idPosts
+router.delete("/delete-media/:idPosts", async (req, res) => {
+  const { idPosts } = req.params;
+  try {
+    const result = await mediaModels.deleteMany({ idPosts });
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 0, message: "Lỗi" });
+  }
+});
+
 module.exports = router;
