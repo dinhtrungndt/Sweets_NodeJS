@@ -151,17 +151,19 @@ router.get("/listchat/:_id", async (req, res) => {
 
             if (senderUser._id.toString() === _id) {
                 var avatar = receiverUser.avatar;
+                var coverImage = receiverUser.coverImage;
                 var name = receiverUser.name;
                 var senderv2 = receiverUser._id;
                 var receiverv2 = receiverUser._id;
             } else {
                 var avatar = senderUser.avatar;
+                var coverImage = senderUser.coverImage;
                 var name = senderUser.name;
                 var senderv2 = receiverUser._id;
                 var receiverv2 = senderUser._id;
             }
 
-            allIdSender.push({ senderv2, receiverv2, content, time, avatar, name, status: message.status, _id: message._id });
+            allIdSender.push({ senderv2, receiverv2, content, time, avatar, coverImage, name, status: message.status, _id: message._id });
         }
 
         // Sắp xếp mảng allIdSender theo thời gian giảm dần

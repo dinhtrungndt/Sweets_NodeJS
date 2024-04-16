@@ -604,7 +604,7 @@ router.post("/search-user/:id", async (req, res) => {
   try {
     const users = await User.find(
       { name: { $regex: new RegExp(name, "i") }, _id: { $ne: id } },
-      { name: 1, avatar: 1, date: 1 }
+      { name: 1, avatar: 1, date: 1, coverImage: 1 }
     );
 
     const searchHistory = new SearchHistory({ userId: id, searchText: name });
