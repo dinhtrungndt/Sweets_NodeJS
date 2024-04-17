@@ -7,6 +7,9 @@
 const express = require('express');
 const router = express.Router();
 const commentModel = require('../models/comments');
+const notificationsModel = require('../models/notifications');
+const UserModel = require('../models/users');
+const postModel = require('../models/posts');
 const axios = require('axios');
 
 /**
@@ -153,8 +156,22 @@ router.post('/add/:idUsers/:idPosts', async (req, res) => {
 
     const parentUserNameT = parentUserName || null;
 
+    const senderName = await UserModel.findById(idUsers).select('name');
+    const senderPost = await postModel.findById(idPosts).select('content');
+
     const comment = new commentModel({ idUsers, idPosts, content, image, parentUserName: parentUserNameT});
     await comment.save();
+
+    if (parentUserNameT) {
+      const notification = new notificationsModel({
+        recipient: parentUserNameT,
+        sender: idUsers,
+        type: 'comments',
+        content: `Bạn đã được ${senderName.name} gắn thẻ trong một bình luận của bài viết nội dung là: ${senderPost.content}`,
+        link: `${senderPost._id}`,
+      });
+      await notification.save();
+    }
 
     res.json({
         status: 'success',
@@ -168,6 +185,7 @@ router.post('/add/:idUsers/:idPosts', async (req, res) => {
     });
   }
 });
+
 
 // Sắp xếp comments dự theo danh sách bạn bè theo idUsers lên đầu còn chưa kết bạn nằm dưới
 // http://localhost:3001/comments/arrange-comment-friend/:idUser/:idPosts

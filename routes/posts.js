@@ -4,6 +4,8 @@ const multer = require("multer");
 const cloudinary = require("cloudinary");
 const postsModels = require('../models/posts');
 const friendModels = require('../models/friend');
+const notificationsModel = require('../models/notifications');
+const UserModel = require('../models/users');
 const { ObjectId } = require('mongoose').Types;
 const axios = require('axios');
 
@@ -54,8 +56,22 @@ router.post('/add-posts/:idUsers', async (req, res) => {
 
   const normalizedContent = content || '';
 
+  const senderName = await UserModel.findById(idUsers).select('name');
+
   const posts = new postsModels({ _id, content: normalizedContent, idObject, idTypePosts, idShare, idUsers, taggedFriends, location });
   await posts.save();
+
+  if (taggedFriends) {
+      const notification = new notificationsModel({
+        recipient: taggedFriends,
+        sender: idUsers,
+        type: 'tagged',
+        content: `Bạn đã được ${senderName.name} gắn thẻ trong một bài viết với nội dung là ${normalizedContent}`,
+        link: `${_id}`,
+      });
+      await notification.save();
+  }
+
   res.json(posts);
 });
 

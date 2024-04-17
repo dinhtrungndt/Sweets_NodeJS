@@ -52,6 +52,7 @@ require("./models/livestream");
 require("./models/colors");
 require("./models/location");
 require("./models/birthday");
+require("./models/notifications");
 
 
 var indexRouter = require("./routes/index");
@@ -69,6 +70,7 @@ var livestreamRouter = require("./routes/livestream");
 var colorRouter = require("./routes/colors");
 var locationRouter = require("./routes/location");
 var birthdayRouter = require("./routes/birthday");
+var notificationsRouter = require("./routes/notifications");
 
 
 
@@ -104,7 +106,7 @@ app.use("/livestream", livestreamRouter);
 app.use("/colors", colorRouter);
 app.use("/location", locationRouter);
 app.use("/birthday", birthdayRouter);
-
+app.use("/notifications", notificationsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
