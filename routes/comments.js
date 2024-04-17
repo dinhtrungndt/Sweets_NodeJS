@@ -151,9 +151,9 @@ router.post('/add/:idUsers/:idPosts', async (req, res) => {
     const { idUsers, idPosts } = req.params;
     const { content, image, parentUserName } = req.body;
 
-    const parentUserNameC = parentUserName || '';
+    const parentUserNameT = parentUserName || null;
 
-    const comment = new commentModel({ idUsers, idPosts, content, image, parentUserName: parentUserNameC});
+    const comment = new commentModel({ idUsers, idPosts, content, image, parentUserName: parentUserNameT});
     await comment.save();
 
     res.json({
@@ -180,7 +180,7 @@ router.get('/arrange-comment-friend/:idUser/:idPosts', async (req, res) => {
     const friendsList = response.data.friendsList;
 
     // Lấy tất cả các comment
-    const allComments = await commentModel.find({ idPosts }).populate("idUsers", "name avatar");
+    const allComments = await commentModel.find({ idPosts }).populate("idUsers", "name avatar").populate("idParent").populate("parentUserName", "name");
 
     // Sắp xếp các comment dựa trên danh sách bạn bè
     const sortedComments = [];
@@ -238,16 +238,26 @@ router.delete('/delete/:idUsers/:idComments', async (req, res) => {
 router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Tìm comment bạn muốn xóa để lấy idParent
+    const commentToDelete = await commentModel.findById(id);
+    const idParent = commentToDelete._id;
+
+    // Xóa tất cả các comment có idParent trùng khớp với idParent của comment muốn xóa
+    await commentModel.deleteMany({ idParent });
+
+    // Tiến hành xóa comment bạn muốn xóa ban đầu
     await commentModel.findByIdAndDelete(id);
+
     res.json({
         status: 1,
-        message: 'Xóa comment thành công',
-    })
+        message: 'Xóa comment và các comment liên quan thành công',
+    });
   } catch (error) {
     res.json({
         status: 0,
-        message: 'Xóa comment thất bại',
-    })
+        message: 'Xóa comment và các comment liên quan thất bại',
+    });
   }
 });
 

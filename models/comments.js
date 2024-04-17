@@ -10,7 +10,7 @@ const comments = new Schema(
     idParent: { type: ObjectId, ref: "comments", default: null},
     content: { type: String },
     image: [{ type: String }],
-    parentUserName: { type: String },
+    parentUserName: { type: ObjectId, ref: "users" },
     createAt: { type: Date, default: Date.now },
   },
   {

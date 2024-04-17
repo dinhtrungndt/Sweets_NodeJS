@@ -186,6 +186,7 @@ router.get('/get-detail-post/:_id', async (req, res) => {
         _id: post.idUsers._id,
         name: post.idUsers.name,
         avatar: post.idUsers.avatar,
+        coverImage: post.idUsers.coverImage,
       },
       taggedFriends: post.taggedFriends,
       createAt: post.createAt,
