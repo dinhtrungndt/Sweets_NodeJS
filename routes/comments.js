@@ -233,32 +233,42 @@ router.delete('/delete/:idUsers/:idComments', async (req, res) => {
   }
 })
 
-// Xóa comment
+// Xóa comment cha và các comment con có liên quan
 // http://localhost:3001/comments/delete/:id
 router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Tìm comment bạn muốn xóa để lấy idParent
-    const commentToDelete = await commentModel.findById(id);
-    const idParent = commentToDelete._id;
-
-    // Xóa tất cả các comment có idParent trùng khớp với idParent của comment muốn xóa
-    await commentModel.deleteMany({ idParent });
-
-    // Tiến hành xóa comment bạn muốn xóa ban đầu
+    const mainComment = await commentModel.findById(id);
+    if (!mainComment) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy comment',
+      });
+    }
     await commentModel.findByIdAndDelete(id);
 
+    const children = await commentModel.find({ idParent: id });
+    const childrenIds = children.map(child => child._id);
+    
+    await commentModel.deleteMany({ idParent: { $in: childrenIds } });
+    
+    const grandChildren = await commentModel.find({ idParent: id });
+    grandChildren.forEach(async (child) => {
+      await commentModel.findByIdAndDelete(child._id);
+    });
+
+    await commentModel.deleteMany({ idParent: id });
+
     res.json({
-        status: 1,
-        message: 'Xóa comment và các comment liên quan thành công',
+      status: 'success',
+      message: 'Xóa comment và các comment con thành công',
     });
   } catch (error) {
-    res.json({
-        status: 0,
-        message: 'Xóa comment và các comment liên quan thất bại',
+    res.status(500).json({
+      status: 'error',
+      message: 'Lỗi khi xóa comment và các comment con',
     });
   }
-});
+})
 
 module.exports = router;
