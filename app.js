@@ -51,6 +51,7 @@ require("./models/login_qrcode");
 require("./models/livestream");
 require("./models/colors");
 require("./models/location");
+require("./models/birthday");
 
 
 var indexRouter = require("./routes/index");
@@ -67,6 +68,7 @@ var loginQRCodeRouter = require("./routes/login_qrcode");
 var livestreamRouter = require("./routes/livestream");
 var colorRouter = require("./routes/colors");
 var locationRouter = require("./routes/location");
+var birthdayRouter = require("./routes/birthday");
 
 
 
@@ -101,6 +103,7 @@ app.use("/loginQRCode", loginQRCodeRouter);
 app.use("/livestream", livestreamRouter);
 app.use("/colors", colorRouter);
 app.use("/location", locationRouter);
+app.use("/birthday", birthdayRouter);
 
 
 // catch 404 and forward to error handler
