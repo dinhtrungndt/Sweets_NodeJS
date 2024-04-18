@@ -53,6 +53,7 @@ require("./models/colors");
 require("./models/location");
 require("./models/birthday");
 require("./models/notifications");
+require("./models/savePosts");
 
 
 var indexRouter = require("./routes/index");
@@ -71,7 +72,7 @@ var colorRouter = require("./routes/colors");
 var locationRouter = require("./routes/location");
 var birthdayRouter = require("./routes/birthday");
 var notificationsRouter = require("./routes/notifications");
-
+var savePostsRouter = require("./routes/savePosts");
 
 
 // view engine setup
@@ -107,6 +108,7 @@ app.use("/colors", colorRouter);
 app.use("/location", locationRouter);
 app.use("/birthday", birthdayRouter);
 app.use("/notifications", notificationsRouter);
+app.use("/saveposts", savePostsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
