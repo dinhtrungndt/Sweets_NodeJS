@@ -13,7 +13,7 @@ const saveposts = new Schema(
   {
     versionKey: false,
   }
-);
+); 
 
 module.exports =
   mongoose.models.saveposts || mongoose.model("saveposts", saveposts);

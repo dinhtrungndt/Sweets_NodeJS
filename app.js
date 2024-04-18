@@ -53,7 +53,7 @@ require("./models/colors");
 require("./models/location");
 require("./models/birthday");
 require("./models/notifications");
-require("./models/savePosts");
+require("./models/saveposts");
 
 
 var indexRouter = require("./routes/index");
@@ -72,7 +72,7 @@ var colorRouter = require("./routes/colors");
 var locationRouter = require("./routes/location");
 var birthdayRouter = require("./routes/birthday");
 var notificationsRouter = require("./routes/notifications");
-var savePostsRouter = require("./routes/savePosts");
+var savePostsRouter = require("./routes/saveposts");
 
 
 // view engine setup

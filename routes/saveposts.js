@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const savePostsModel = require("../models/savePosts");
+const savePostsModel = require("../models/saveposts");
 const postsModel = require("../models/posts");
 const axios = require('axios');
 
@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
   const data = await savePostsModel.find();
   res.json(data);
 });
-
+ 
 // Lưu bài viết dựa theo idUsers và idPosts
 // http://localhost:3001/savePosts/saved-post/:idUsers/:idPosts
 router.post("/saved-post/:idUsers/:idPosts", async (req, res) => {
