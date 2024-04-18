@@ -55,42 +55,50 @@ const otpSecret = "yourotpsecret"; // Thay đổi secret cho mã OTP
 // Lưu danh sách mã OTP và email tương ứng
 const otpStore = {};
 
-router.post("/forgot-password", (req, res) => {
+router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
-  // Kiểm tra xem email có tồn tại trong hệ thống hay không
-  // Nếu có, tạo mã OTP và gửi email
 
-  const otp = generateOTP(); // Tạo mã OTP
-
-  // Lưu mã OTP và email vào cơ sở dữ liệu tạm thời
-  otpStore[email] = otp;
-
-  // Gửi email với mã OTP
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "nguyenhuudung312337@gmail.com",
-      pass: "jaktpyotjpcpefmo",
-    },
-  });
-
-  const mailOptions = {
-    from: "nguyenhuudung312337@gmail.com",
-    to: email,
-    subject: "Khôi phục mật khẩu",
-    text: `Mã OTP của bạn là: ${otp}`,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-      res.status(500).json({ status: 0, message: "Không thể gửi về mail này" });
-    } else {
-      console.log("Email sent: " + info.response);
-      res.status(200).json({ status: 1, message: "Gửi mã OTP về mail thành công" });
+  try {
+    // Kiểm tra xem email có tồn tại trong hệ thống hay không
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Email không tồn tại trong hệ thống" });
     }
-  });
+    // Nếu email tồn tại, tiếp tục tạo mã OTP và gửi email
+    const otp = generateOTP(); // Tạo mã OTP
+    // Lưu mã OTP và email vào cơ sở dữ liệu tạm thời
+    otpStore[email] = otp;
+    // Gửi email với mã OTP
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "nguyenhuudung312337@gmail.com",
+        pass: secretKey, // Sử dụng secretKey thay vì hardcode mật khẩu
+      },
+    });
+
+    const mailOptions = {
+      from: "nguyenhuudung312337@gmail.com",
+      to: email,
+      subject: "Khôi phục mật khẩu",
+      text: `Mã OTP của bạn là: ${otp}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Không thể gửi email" });
+      } else {
+        console.log("Email sent: " + info.response);
+        res.status(200).json({ success: true, message: "Gửi mã OTP về email thành công" });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
+  }
 });
+
 
 router.post("/check-otp", async (req, res) => {
   const { email, otp } = req.body;
