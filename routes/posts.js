@@ -314,4 +314,34 @@ router.get('/get-location-posts/:_id', async (req, res) => {
   }
 });
 
+// Loading lại bài viết
+// http://localhost:3001/posts/reload-posts/:_id
+router.put('/reload-posts/:_id', async (req, res) => {
+  try {
+    const _id = req.params._id;
+
+    const post = await postsModels
+      .findById(_id)
+      .populate("idObject")
+      .populate("idTypePosts")
+      .populate("idShare")
+      .populate("idUsers", "name avatar coverImage")
+      .populate("taggedFriends", "name avatar coverImage")
+      .populate("location");
+
+    if (!post) {
+      return res.status(404).json({ message: 'Bài viết không tồn tại' });
+    }
+
+    post.reload = true;
+    await post.save();
+    
+    res.json({ status: 'success', message: 'Loading lại bài viết thành công', post });
+  } catch (error) {
+    console.error('Error reloading post:', error);
+    res.status(500).json({ message: 'Lỗi khi loading lại bài viết', error: error.message });
+  }
+}
+);
+
 module.exports = router;
