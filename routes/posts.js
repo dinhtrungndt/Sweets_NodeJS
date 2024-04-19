@@ -6,6 +6,7 @@ const postsModels = require('../models/posts');
 const friendModels = require('../models/friend');
 const notificationsModel = require('../models/notifications');
 const UserModel = require('../models/users');
+const shareModel = require('../models/share');
 const { ObjectId } = require('mongoose').Types;
 const axios = require('axios');
 
@@ -177,21 +178,20 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   const { _id } = req.params;
 
   try {
-    // Lấy danh sách comment theo từ route comments
     const response = await axios.get(`https://sweets-nodejs.onrender.com/comments/get-comment/${_id}`);
     const commentsList = response.data;
     
-    // Lấy danh sách media theo từ route media
     const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
     const mediaList = responseMedia.data;
     
-    // Lấy danh sách reaction theo từ route reaction
     const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
+
+    const shareReaction = await axios.get(`https://sweets-nodejs.onrender.com/share/get-share/${_id}`);  
+    const shareList = shareReaction.data;
     
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
-    // Construct the response object with desired format
     const formattedResponse = {
       _id: post._id,
       content: post.content,
@@ -208,7 +208,8 @@ router.get('/get-detail-post/:_id', async (req, res) => {
       createAt: post.createAt,
       comment: commentsList,
       media: mediaList,
-      reaction: reactionList
+      reaction: reactionList,
+      share: shareList.shares,
     };
 
     res.json(formattedResponse);
