@@ -41,7 +41,6 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
       ]
     }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage").populate("location");
     
-    data.reverse();
     res.json(data);
   } catch (error) {
     console.error('Error  get-posts-by-user:', error);
@@ -321,6 +320,9 @@ router.put('/reload-posts/:_id', async (req, res) => {
   try {
     const _id = req.params._id;
 
+    const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
+    const reactionList = responseReaction.data;
+
     const post = await postsModels
       .findById(_id)
       .populate("idObject")
@@ -334,7 +336,7 @@ router.put('/reload-posts/:_id', async (req, res) => {
       return res.status(404).json({ message: 'Bài viết không tồn tại' });
     }
 
-    post.reload = true;
+    post.reaction = reactionList;
     await post.save();
     
     res.json({ status: 'success', message: 'Loading lại bài viết thành công', post });

@@ -55,6 +55,7 @@ require("./models/birthday");
 require("./models/notifications");
 require("./models/saveposts");
 require("./models/share");
+require("./models/oneposts");
 
 
 var indexRouter = require("./routes/index");
@@ -75,6 +76,7 @@ var birthdayRouter = require("./routes/birthday");
 var notificationsRouter = require("./routes/notifications");
 var savePostsRouter = require("./routes/saveposts");
 var shareRouter = require("./routes/share");
+var onepostsRouter = require("./routes/oneposts");
 
 
 // view engine setup
@@ -112,6 +114,7 @@ app.use("/birthday", birthdayRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/saveposts", savePostsRouter);
 app.use("/share", shareRouter);
+app.use("/oneposts", onepostsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -4,12 +4,13 @@ const ObjectId = Schema.ObjectId;
 
 const share = new Schema(
   {
-    id: { type: ObjectId },
+    _id: { type: Number },
     idUsers: { type: ObjectId, ref: "users" },
     idPosts: { type: Number, ref: "posts" },
     content: { type: String },
     idObject: { type: ObjectId, ref: "object" },
     createAt: { type: Date, default: Date.now },
+    idTypePosts: { type: ObjectId, ref: "typePosts" },
   },
   {
     versionKey: false,
