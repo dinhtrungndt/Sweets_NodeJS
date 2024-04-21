@@ -14,6 +14,7 @@ const share = new Schema(
   },
   {
     versionKey: false,
+    _id: false,
   }
 );
 
