@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 // http://localhost:3001/share/share-post
 router.post("/share-post", async (req, res) => {
     try {
-      const { _id, idUsers, idPosts, content, idObject } = req.body;
+      const { _id, idUsers, idPosts, content, idObject ,idTypePosts} = req.body;
   
       const newShare = new shareModels({
         _id,

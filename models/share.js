@@ -4,7 +4,7 @@ const ObjectId = Schema.ObjectId;
 
 const share = new Schema(
   {
-    _id: { type: ObjectId },
+    _id: {type: Number },
     idUsers: { type: ObjectId, ref: "users" },
     idPosts: { type: Number, ref: "posts" },
     content: { type: String },
@@ -14,6 +14,7 @@ const share = new Schema(
   },
   {
     versionKey: false,
+    _id: false,
   }
 );
 
