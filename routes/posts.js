@@ -40,10 +40,12 @@ router.get('/get-posts-idObject/:idUsers', async (req, res) => {
       ]
     }).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers").populate("taggedFriends", "name avatar coverImage").populate("location");
     
+    data.sort((a, b) => b.createAt - a.createAt);
+
     res.json(data);
   } catch (error) {
-    console.error('Error  get-posts-by-user:', error);
-    res.status(500).json({ message: 'Error  get-posts-by-user' });
+    console.error('Lỗi  get-posts-by-user:', error);
+    res.status(500).json({ message: 'Lỗi  get-posts-by-user' });
   }
 }); 
 
@@ -178,6 +180,12 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   try {
     const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
+
+    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
+    const mediaList = responseMedia.data;
+
+    const shareReaction = await axios.get(`https://sweets-nodejs.onrender.com/share/get-share/${_id}`);  
+    const shareList = shareReaction.data;
     
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
@@ -195,7 +203,9 @@ router.get('/get-detail-post/:_id', async (req, res) => {
       },
       taggedFriends: post.taggedFriends,
       createAt: post.createAt,
-      reaction: reactionList
+      reaction: reactionList,
+      media: mediaList,
+      share: shareList.shares,
     };
 
     res.json(formattedResponse);
