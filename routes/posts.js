@@ -202,7 +202,6 @@ router.get('/get-detail-post/:_id', async (req, res) => {
       createAt: post.createAt,
       reaction: reactionList,
       media: mediaList,
-      share: shareList.shares,
     };
 
     res.json(formattedResponse);
