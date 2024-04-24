@@ -184,9 +184,6 @@ router.get('/get-detail-post/:_id', async (req, res) => {
     const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
     const mediaList = responseMedia.data;
 
-    const shareReaction = await axios.get(`https://sweets-nodejs.onrender.com/share/get-share/${_id}`);  
-    const shareList = shareReaction.data;
-    
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
     const formattedResponse = {
