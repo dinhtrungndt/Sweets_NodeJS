@@ -17,6 +17,10 @@ cloudinary.config({
   api_key: "376591774628556",
   api_secret: "eNQQQuVzK7LjhezzBlX-q10DwZU",
   secure: true,
+  cdn_subdomain: true,
+  chunk_size: 6000000,
+  timeout: 60000,
+  concurrency: 4,
 });
 
 const storage = multer.diskStorage({
