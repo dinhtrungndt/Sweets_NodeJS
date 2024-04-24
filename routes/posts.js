@@ -178,6 +178,9 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   const { _id } = req.params;
 
   try {
+    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
+    const mediaList = responseMedia.data;
+
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
 
     const formattedResponse = {
@@ -194,6 +197,7 @@ router.get('/get-detail-post/:_id', async (req, res) => {
       },
       taggedFriends: post.taggedFriends,
       createAt: post.createAt,
+      media: mediaList,
     };
 
     res.json(formattedResponse);

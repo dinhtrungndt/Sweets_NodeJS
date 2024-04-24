@@ -110,6 +110,9 @@ router.get("/get-share-object/:idPosts/:idUsers", async (req, res) => {
     const responsePosts = await axios.get(`https://sweets-nodejs.onrender.com/posts/get-detail-post/${idPosts}`);
     const postDetail = responsePosts.data;
 
+    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${postDetail._id}`);
+    const mediaList = responseMedia.data;
+
     const shares = await shareModels.find({
       idPosts,
       idUsers: { $in: friendsList }
@@ -120,7 +123,8 @@ router.get("/get-share-object/:idPosts/:idUsers", async (req, res) => {
     const formattedResponse = {
       shares: shares.map(share => ({
         ...share._doc,
-        idPosts: postDetail
+        idPosts: postDetail,
+        media: mediaList
       }))
     };
 
@@ -130,5 +134,18 @@ router.get("/get-share-object/:idPosts/:idUsers", async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy số lượng chia sẻ', error: error.message });
   }
 });
+
+// Xóa chia sẻ dựa vào id
+// http://localhost:3001/share/delete/:id
+router.delete("/delete/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await shareModels.findByIdAndDelete(id);
+      res.json({ success: true, message: 'Đã xóa chia sẻ.' });
+    } catch (error) {
+      console.error('Lỗi khi xóa chia sẻ:', error);
+      res.status(500).json({ success: false, message: 'Đã xảy ra lỗi khi xóa chia sẻ.' });
+    }
+  });
 
 module.exports = router;

@@ -6,7 +6,7 @@ const Comments = require("../models/comments");
 // Lấy danh sách các notifications
 // http://localhost:3001/notifications
 router.get("/", async (req, res) => {
-  const data = await notificationsModel.find();
+  const data = await notificationsModel.find().sort({ createdAt: -1 })
   res.json(data);
 });
 
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 // http://localhost:3001/notifications/recipient/:id
 router.get("/recipient/:id", async (req, res) => {
   const { id } = req.params;
-  const data = await notificationsModel.find({ recipient: id }).populate("recipient", "name avatar").populate("sender", "name avatar");
+  const data = await notificationsModel.find({ recipient: id }).populate("recipient", "name avatar").populate("sender", "name avatar").sort({ createdAt: -1 });
   res.json(data);
 });
 
