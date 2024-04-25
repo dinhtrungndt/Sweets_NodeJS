@@ -85,13 +85,14 @@ router.post("/accept-friend-request", async (req, res) => {
     }
 
     // Chấp nhận lời mời
-    friendRequest.status = true;
+    friendRequest.status = true; 
+    friendRequest.time = new Date();
     await friendRequest.save();
 
     // Trả về thành công
     res
       .status(200)
-      .json({ success: true, message: "Chấp nhận lời mời kết bạn thành công" });
+      .json({ success: true, message: "Chấp nhận lời mời kết bạn thành công" ,time: friendRequest.time});
   } catch (error) {
     console.error(error);
     // Trả về lỗi nếu có vấn đề khi chấp nhận lời mời kết bạn
@@ -274,7 +275,8 @@ router.get("/friends/:idUser", async (req, res) => {
         id: friendId,
         name: friendData.name,
         avatar: friendData.avatar,
-        coverImage: friendData.coverImage
+        coverImage: friendData.coverImage,
+        time: friend.time
       };
     }));
 
