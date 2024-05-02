@@ -268,7 +268,7 @@ router.get("/friends/:idUser", async (req, res) => {
     const detailedFriendsList = await Promise.all(friendsList.map(async (friend) => {
       const friendId = friend.idFriendSender == idUser ? friend.idFriendReceiver : friend.idFriendSender;
       
-      const response = await axios.get(`https://sweets-nodejs.onrender.com/users/get-user/${friendId}`);
+      const response = await axios.get(`https://api.dinhtrungndt.id.vn/users/get-user/${friendId}`);
       const friendData = response.data.user;
 
       return {

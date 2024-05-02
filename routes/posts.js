@@ -178,7 +178,7 @@ router.get('/get-detail-post/:_id', async (req, res) => {
   const { _id } = req.params;
 
   try {
-    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${_id}`);
+    const responseMedia = await axios.get(`https://api.dinhtrungndt.id.vn/media/get-media/${_id}`);
     const mediaList = responseMedia.data;
 
     const post = await postsModels.findById(_id).populate("idObject").populate("idTypePosts").populate("idShare").populate("idUsers", "name avatar coverImage").populate("taggedFriends", "name avatar coverImage").populate("location");
@@ -309,7 +309,7 @@ router.put('/reload-posts/:_id', async (req, res) => {
   try {
     const _id = req.params._id;
 
-    const responseReaction = await axios.get(`https://sweets-nodejs.onrender.com/reaction/getPostsId/${_id}`);  
+    const responseReaction = await axios.get(`https://api.dinhtrungndt.id.vn/reaction/getPostsId/${_id}`);  
     const reactionList = responseReaction.data;
 
     const post = await postsModels

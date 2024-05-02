@@ -42,7 +42,7 @@ router.get("/get-share/:idPosts", async (req, res) => {
     try {
       const { idPosts } = req.params;
     
-    const responsePosts = await axios.get(`https://sweets-nodejs.onrender.com/posts/get-detail-post/${idPosts}`);
+    const responsePosts = await axios.get(`https://api.dinhtrungndt.id.vn/posts/get-detail-post/${idPosts}`);
     const postsList = responsePosts.data;
 
       const shares = await shareModels.find({ idPosts }).populate('idObject').populate('idUsers', 'name avatar coverImage');
@@ -107,10 +107,10 @@ router.get("/get-share-object/:idPosts/:idUsers", async (req, res) => {
     const friendsList = friendsResponse.map(friend => friend.idFriendSender == idUsers ? friend.idFriendReceiver : friend.idFriendSender);
     friendsList.push(idUsers); 
 
-    const responsePosts = await axios.get(`https://sweets-nodejs.onrender.com/posts/get-detail-post/${idPosts}`);
+    const responsePosts = await axios.get(`https://api.dinhtrungndt.id.vn/posts/get-detail-post/${idPosts}`);
     const postDetail = responsePosts.data;
 
-    const responseMedia = await axios.get(`https://sweets-nodejs.onrender.com/media/get-media/${postDetail._id}`);
+    const responseMedia = await axios.get(`https://api.dinhtrungndt.id.vn/media/get-media/${postDetail._id}`);
     const mediaList = responseMedia.data;
 
     const shares = await shareModels.find({

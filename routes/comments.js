@@ -194,7 +194,7 @@ router.get('/arrange-comment-friend/:idUser/:idPosts', async (req, res) => {
     const { idUser, idPosts } = req.params;
 
     // Lấy danh sách bạn bè của người dùng từ routes friend
-    const response = await axios.get(`https://sweets-nodejs.onrender.com/friend/friends/${idUser}`);
+    const response = await axios.get(`https://api.dinhtrungndt.id.vn/friend/friends/${idUser}`);
     const friendsList = response.data.friendsList;
 
     // Lấy tất cả các comment

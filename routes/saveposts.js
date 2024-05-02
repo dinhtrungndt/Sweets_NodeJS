@@ -102,7 +102,7 @@ router.get("/get-saved-media/:idUsers", async (req, res) => {
 
     for (let i = 0; i < result.length; i++) {
       const post = result[i];
-      const posts = await axios.get(`https://sweets-nodejs.onrender.com/posts/get-detail-post/${post._id}`);
+      const posts = await axios.get(`https://api.dinhtrungndt.id.vn/posts/get-detail-post/${post._id}`);
       result[i].posts = posts.data;
     }
 

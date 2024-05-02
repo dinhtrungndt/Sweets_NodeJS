@@ -24,7 +24,7 @@ router.get('/get-oneposts/:idUsers', async (req, res) => {
 
         const promises = sharesList.map(async (share) => {
             const idPost = share.idPosts._id;
-            const responseDetail = await axios.get(`https://sweets-nodejs.onrender.com/posts/get-detail-post/${idPost}`);
+            const responseDetail = await axios.get(`https://api.dinhtrungndt.id.vn/posts/get-detail-post/${idPost}`);
             return responseDetail.data;
         });
 
